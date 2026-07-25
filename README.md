@@ -116,7 +116,7 @@ Current focus:
 
 ## Status
 
-🚧 In Development
+In Development
 
 ---
 
