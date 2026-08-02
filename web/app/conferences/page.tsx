@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import Navbar from "@/components/layout/Navbar";
 
 type Conference = {
   id: string;
@@ -39,6 +40,7 @@ export default function ConferencesPage() {
   }, []);
 
   return (
+    <><Navbar />
     <main className="min-h-screen bg-slate-100 px-4 py-10">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-8">
@@ -110,5 +112,6 @@ export default function ConferencesPage() {
         )}
       </div>
     </main>
+    </>
   );
 }

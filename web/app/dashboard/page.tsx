@@ -1,9 +1,9 @@
 "use client";
 
+import Navbar from "@/components/layout/Navbar";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type Profile = {
   first_name: string | null;
@@ -19,7 +19,7 @@ type Profile = {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<Profile | null>(null);
+   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,11 +51,6 @@ export default function DashboardPage() {
     loadProfile();
   }, [router]);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
-
   const firstName = profile?.first_name || "there";
 
   const fields = [
@@ -80,42 +75,25 @@ export default function DashboardPage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-10">
+  <>
+      <Navbar />
+        <main className="min-h-screen bg-slate-100 px-4 py-10">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        <section className="rounded-2xl bg-white p-8 shadow-sm">
-          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-            <div>
-              <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
-                ConCrew Dashboard
-              </p>
-              <h1 className="mt-2 text-4xl font-bold text-slate-900">
-                Welcome back, {firstName}!
-              </h1>
-              <p className="mt-3 max-w-2xl text-slate-600">
-                Your conference profile is ready to grow. Finish a few more
-                details and ConCrew will be ready to help you discover the
-                right people.
-              </p>
+          <section className="rounded-2xl bg-white p-8 shadow-sm">
+            <div className="flex flex-col gap-6">
+              <div>
+                <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
+                  ConCrew Dashboard
+                </p>
+                <h1 className="mt-2 text-4xl font-bold text-slate-900">
+                  Welcome back, {firstName}!
+                </h1>
+                <p className="mt-3 max-w-2xl text-slate-600">
+                  Your conference profile is ready to grow. Finish a few more details and ConCrew will be ready to help you discover the right people.
+                </p>
+              </div>
             </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/profile"
-                className="rounded-full bg-slate-900 px-5 py-3 font-medium text-white transition hover:opacity-90"
-              >
-                Edit Profile
-              </Link>
-
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded-full border border-slate-300 px-5 py-3 font-medium text-slate-900 transition hover:bg-slate-50"
-              >
-                Log Out
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
 
         <section className="grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl bg-white p-8 shadow-sm">
@@ -166,5 +144,6 @@ export default function DashboardPage() {
         </section>
       </div>
     </main>
+    </>
   );
 }

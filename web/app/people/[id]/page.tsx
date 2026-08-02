@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import Navbar from "@/components/layout/Navbar";
 
 type Profile = {
     id: string;
@@ -183,16 +184,19 @@ export default function PublicProfilePage() {
 
     if (loading) {
         return (
+            <><Navbar />
             <main className="min-h-screen bg-slate-100 px-4 py-10">
                 <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
                     <p className="text-slate-600">Loading profile...</p>
                 </div>
             </main>
+            </>
         );
     }
 
     if (error) {
         return (
+            <><Navbar/>
             <main className="min-h-screen bg-slate-100 px-4 py-10">
                 <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
                     <p className="rounded-lg bg-red-50 px-4 py-3 text-red-700">
@@ -200,11 +204,13 @@ export default function PublicProfilePage() {
                     </p>
                 </div>
             </main>
+            </>
         );
     }
 
     if (!profile) {
         return (
+            <><Navbar/>
             <main className="min-h-screen bg-slate-100 px-4 py-10">
                 <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
                     <h1 className="text-3xl font-bold text-slate-900">
@@ -219,6 +225,7 @@ export default function PublicProfilePage() {
                     </button>
                 </div>
             </main>
+            </>
         );
     }
 
@@ -229,6 +236,7 @@ export default function PublicProfilePage() {
     const isOwnProfile = currentUserId === profile.id;
 
     return (
+        <><Navbar/>
         <main className="min-h-screen bg-slate-100 px-4 py-10">
             <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-sm">
                 <Link
@@ -361,5 +369,6 @@ export default function PublicProfilePage() {
                 </div>
             </div>
         </main>
+        </>
     );
 }
