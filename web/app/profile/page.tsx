@@ -1,11 +1,18 @@
 "use client";
+
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/layout/Navbar";
+import { supabase } from "@/lib/supabase";
+
+type Feedback = {
+  type: "success" | "error";
+  text: string;
+} | null;
 
 export default function ProfilePage() {
   const router = useRouter();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [bio, setBio] = useState("");
@@ -17,8 +24,9 @@ export default function ProfilePage() {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -27,22 +35,21 @@ export default function ProfilePage() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        setMessage("You must be logged in.");
+        router.push("/login");
         return;
       }
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(
+          "first_name, last_name, bio, company, school, city, job_title, linkedin_url, github_url, years_experience"
+        )
         .eq("id", user.id)
         .maybeSingle();
 
       if (error) {
-        setMessage(error.message);
-        return;
-      }
-
-      if (data) {
+        setFeedback({ type: "error", text: error.message });
+      } else if (data) {
         setFirstName(data.first_name ?? "");
         setLastName(data.last_name ?? "");
         setBio(data.bio ?? "");
@@ -58,22 +65,25 @@ export default function ProfilePage() {
         setLinkedinUrl(data.linkedin_url ?? "");
         setGithubUrl(data.github_url ?? "");
       }
+
+      setLoading(false);
     }
 
     loadProfile();
-  }, []);
+  }, [router]);
 
-  async function handleSaveProfile() {
-    setLoading(true);
-    setMessage("");
+  async function handleSaveProfile(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSaving(true);
+    setFeedback(null);
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setLoading(false);
-      setMessage("You must be logged in.");
+      setSaving(false);
+      setFeedback({ type: "error", text: "You must be logged in." });
       return;
     }
 
@@ -91,178 +101,261 @@ export default function ProfilePage() {
       github_url: githubUrl,
     });
 
-    setLoading(false);
+    setSaving(false);
 
     if (error) {
-      setMessage(error.message);
+      setFeedback({ type: "error", text: error.message });
       return;
     }
 
-    setMessage("Profile saved successfully!");
-    router.push("/dashboard");
+    setFeedback({ type: "success", text: "Profile saved successfully!" });
+  }
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-slate-100 px-4 py-10">
+          <div className="mx-auto w-full max-w-5xl">
+            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+              <p className="text-slate-600">Loading profile...</p>
+            </div>
+          </div>
+        </main>
+      </>
+    );
   }
 
   return (
-    <><Navbar />
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900">
-          Complete Your Profile
-        </h1>
+    <>
+      <Navbar />
 
-        <p className="mt-2 text-slate-600">
-          Tell us a little about yourself so ConCrew can recommend the right people.
-        </p>
+      <main className="min-h-screen bg-slate-100 px-4 py-10">
+        <div className="mx-auto w-full max-w-5xl space-y-6">
+          <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="bg-gradient-to-r from-slate-900 to-slate-700 px-8 py-10 text-white">
+              <p className="text-sm uppercase tracking-[0.2em] text-white/70">
+                Profile
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+                Complete your profile
+              </h1>
+              <p className="mt-3 max-w-2xl text-white/80">
+                Tell people who you are, what you do, and where they can find
+                you.
+              </p>
+            </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label htmlFor="firstName" className="mb-2 block text-sm font-medium">
-              First Name
-            </label>
-            <input
-              id="firstName"
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+            <form onSubmit={handleSaveProfile} className="grid gap-6 p-8">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="firstName"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    First name
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="Mabel"
+                    required
+                  />
+                </div>
 
-          <div>
-            <label htmlFor="lastName" className="mb-2 block text-sm font-medium">
-              Last Name
-            </label>
-            <input
-              id="lastName"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="lastName"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    Last name
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="Tsadia"
+                    required
+                  />
+                </div>
+              </div>
 
-          <div className="md:col-span-2">
-            <label htmlFor="bio" className="mb-2 block text-sm font-medium">
-              Bio
-            </label>
-            <textarea
-              id="bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-              rows={4}
-            />
-          </div>
+              <div className="rounded-2xl bg-slate-50 p-5">
+                <label
+                  htmlFor="bio"
+                  className="mb-2 block text-sm font-medium text-slate-700"
+                >
+                  Bio
+                </label>
+                <textarea
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={5}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                  placeholder="Tell people a little about yourself..."
+                />
+              </div>
 
-          <div>
-            <label htmlFor="company" className="mb-2 block text-sm font-medium">
-              Company
-            </label>
-            <input
-              id="company"
-              type="text"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="company"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    Company
+                  </label>
+                  <input
+                    id="company"
+                    type="text"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="Arizona State University"
+                  />
+                </div>
 
-          <div>
-            <label htmlFor="school" className="mb-2 block text-sm font-medium">
-              School
-            </label>
-            <input
-              id="school"
-              type="text"
-              value={school}
-              onChange={(e) => setSchool(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="school"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    School
+                  </label>
+                  <input
+                    id="school"
+                    type="text"
+                    value={school}
+                    onChange={(e) => setSchool(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="Arizona State University"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label htmlFor="city" className="mb-2 block text-sm font-medium">
-              City
-            </label>
-            <input
-              id="city"
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="city"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    City
+                  </label>
+                  <input
+                    id="city"
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="Tempe"
+                  />
+                </div>
 
-          <div>
-            <label htmlFor="jobTitle" className="mb-2 block text-sm font-medium">
-              Job Title
-            </label>
-            <input
-              id="jobTitle"
-              type="text"
-              value={jobTitle}
-              onChange={(e) => setJobTitle(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="jobTitle"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    Job title
+                  </label>
+                  <input
+                    id="jobTitle"
+                    type="text"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="Software Engineering Student"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label htmlFor="yearsExperience" className="mb-2 block text-sm font-medium">
-              Years of Experience
-            </label>
-            <input
-              id="yearsExperience"
-              type="number"
-              min="0"
-              value={yearsExperience}
-              onChange={(e) => setYearsExperience(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="yearsExperience"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    Years of experience
+                  </label>
+                  <input
+                    id="yearsExperience"
+                    type="number"
+                    min="0"
+                    value={yearsExperience}
+                    onChange={(e) => setYearsExperience(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="2"
+                  />
+                </div>
 
-          <div>
-            <label htmlFor="linkedinUrl" className="mb-2 block text-sm font-medium">
-              LinkedIn URL
-            </label>
-            <input
-              id="linkedinUrl"
-              type="url"
-              value={linkedinUrl}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <label
+                    htmlFor="linkedinUrl"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    LinkedIn URL
+                  </label>
+                  <input
+                    id="linkedinUrl"
+                    type="url"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                    placeholder="https://linkedin.com/in/yourname"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label htmlFor="githubUrl" className="mb-2 block text-sm font-medium">
-              GitHub URL
-            </label>
-            <input
-              id="githubUrl"
-              type="url"
-              value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-4 py-3"
-            />
-          </div>
+              <div className="rounded-2xl bg-slate-50 p-5">
+                <label
+                  htmlFor="githubUrl"
+                  className="mb-2 block text-sm font-medium text-slate-700"
+                >
+                  GitHub URL
+                </label>
+                <input
+                  id="githubUrl"
+                  type="url"
+                  value={githubUrl}
+                  onChange={(e) => setGithubUrl(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-slate-900"
+                  placeholder="https://github.com/yourname"
+                />
+              </div>
+
+              <div className="flex flex-col gap-4 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
+                <p className="text-sm text-slate-500">
+                  Changes are saved to Supabase when you click Save Profile.
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="rounded-full bg-slate-900 px-6 py-3 font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {saving ? "Saving..." : "Save Profile"}
+                </button>
+              </div>
+            </form>
+          </section>
+
+          {feedback && (
+            <div
+              className={`rounded-2xl border px-4 py-3 shadow-sm ${feedback.type === "success"
+                  ? "border-green-200 bg-green-50 text-green-700"
+                  : "border-red-200 bg-red-50 text-red-700"
+                }`}
+            >
+              {feedback.text}
+            </div>
+          )}
         </div>
-
-        {message && (
-          <p className="mt-4 rounded-lg bg-green-50 p-3 text-green-700">
-            {message}
-          </p>
-        )}
-
-        <button
-          type="button"
-          onClick={handleSaveProfile}
-          className="mt-8 rounded-full bg-slate-900 px-6 py-3 text-white disabled:opacity-60"
-          disabled={loading}
-        >
-          {loading ? "Saving..." : "Save Profile"}
-        </button>
-      </div>
-    </main>
+      </main>
     </>
   );
 }
