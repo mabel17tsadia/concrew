@@ -17,6 +17,7 @@ export default function Navbar() {
         { href: "/dashboard", label: "Dashboard" },
         { href: "/conferences", label: "Conferences" },
         { href: "/people", label: "People" },
+        { href: "/crews", label: "Crews" },
         { href: "/connections", label: "Connections" },
         { href: "/profile", label: "Profile" },
     ];
