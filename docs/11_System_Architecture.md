@@ -5,7 +5,7 @@
 > **Supporting Roles:** Product Manager, Business Analyst, QA Engineer  
 > **SDLC Phase:** Solution Design  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -51,20 +51,22 @@ Rather than introducing distributed systems or microservices, the application pr
                           ▼
                Next.js Web Application
                           │
-         ┌────────────────┼────────────────┐
-         │                │                │
-         ▼                ▼                ▼
- Authentication   Business Logic   Recommendation Engine
-         │                │                │
-         └────────────────┼────────────────┘
+    ┌──────────┬──────────┼──────────┬──────────┐
+    ▼          ▼          ▼          ▼          ▼
+Auth      Business   Recommendation  Messaging  Realtime
+          Logic         Matching     & Notify   Subscriptions
+    │          │          │          │          │
+    └──────────┴──────────┼──────────┴──────────┘
                           │
                           ▼
                    Supabase Backend
                           │
-          ┌───────────────┴──────────────┐
-          ▼                              ▼
-    Supabase Auth                 PostgreSQL Database
+       ┌──────────────────┼──────────────────┐
+       ▼                  ▼                  ▼
+ Supabase Auth   PostgreSQL + pgvector   Supabase Realtime
 ```
+
+The client queries Supabase directly from the browser; there is no server-side API layer yet (see ADR-002 and Future Architecture).
 
 ---
 
@@ -100,8 +102,8 @@ Responsible for implementing business rules.
 
 Examples:
 
-- Recommendation logic
-- Crew rules
+- Recommendation ranking (client-side, over the results of the `match_profiles` RPC)
+- Crew rules (roles, visibility, ownership transfer)
 - Conference rules
 - Validation
 - Authorization
@@ -116,8 +118,8 @@ Examples:
 
 - Authentication
 - Database access
-- Notifications
-- API requests
+- Realtime subscriptions (crew membership, join requests, notifications, messages)
+- The `match_profiles` recommendation RPC
 
 ---
 
@@ -127,18 +129,17 @@ Responsible for persistent storage.
 
 Technology
 
-- PostgreSQL
+- PostgreSQL, with the pgvector extension for profile embeddings
 - Supabase
 
 Stores:
 
-- Users
+- Users / Profiles (including Conference Goals, Interests, Networking Preferences, and profile embeddings)
 - Conferences
-- Preferences
-- Interests
 - Connections
-- Crews
+- Crews, Crew Members, Crew Join Requests, Crew Invitations
 - Meetups
+- Conversations and Messages
 - Notifications
 
 ---
@@ -149,7 +150,7 @@ Stores:
 
 | Technology | Purpose |
 |------------|---------|
-| Next.js | Full-stack React framework |
+| Next.js | React framework (App Router) |
 | React | Component architecture |
 | TypeScript | Static typing |
 | Tailwind CSS | Utility-first styling |
@@ -163,7 +164,9 @@ Stores:
 |------------|---------|
 | Supabase | Backend platform |
 | PostgreSQL | Relational database |
+| pgvector | Stores profile embeddings and powers similarity-based recommendations |
 | Supabase Auth | Authentication |
+| Supabase Realtime | Live updates for crew membership, join requests, notifications, and messages |
 | Row-Level Security | Authorization |
 
 ---
@@ -220,10 +223,11 @@ Use Next.js as the primary application framework.
 
 Reason
 
-- Server-side rendering
-- API Routes
 - Excellent React ecosystem
 - Easy deployment on Vercel
+- App Router conventions for pages and layouts
+
+As built, the app does not use Next.js API Routes; the client queries Supabase directly from every page. A small server-side API layer is planned to support upcoming AI features (see Future Architecture), not for the current CRUD flows.
 
 ---
 
@@ -233,38 +237,40 @@ Reason
 
 Decision
 
-Supabase provides authentication and database services.
+Supabase provides authentication, database, and realtime services.
 
 Reason
 
 - Rapid MVP development
-- PostgreSQL
+- PostgreSQL, with the pgvector extension available for embeddings
 - Authentication built-in
 - Row-Level Security
+- Realtime subscriptions over `postgres_changes`, once a table is added to the `supabase_realtime` publication
 - Easy deployment
 
 ---
 
 ## ADR-004
 
-### Rule-Based Recommendations
+### Profile-Similarity (Embedding) Recommendations
 
 Decision
 
-Recommendations will use deterministic business rules.
+Recommendations use a pgvector embedding of each profile, compared through a `match_profiles` database function, rather than deterministic rule scoring.
 
 Reason
 
-The objective of the MVP is validating compatibility—not building AI.
+Rule-based scoring was the original plan, but comparing whole-profile embeddings proved simpler to implement than maintaining a hand-tuned weighting across many fields, and produces a single similarity score directly.
 
-Recommendation inputs include:
+Recommendation inputs come from whatever is saved on the profile, including:
 
+- Biography
 - Interests
-- Goals
-- Company
-- School
-- Networking preferences
-- Conference attendance
+- Conference Goals
+- Networking Preferences
+- Company, School, Job Title
+
+The embedding is regenerated when a profile is saved. Itemized "why you matched" reasoning is not yet produced; only the resulting similarity score is shown.
 
 ---
 
@@ -325,10 +331,19 @@ Build the smallest feature that delivers value.
 Responsibilities
 
 - Register
-- Login
+- Login (redirects to Onboarding if incomplete)
 - Logout
 - Password Reset
 - Session Management
+
+---
+
+## Onboarding Service
+
+Responsibilities
+
+- Present the Conference Goals, Interests, and Networking Preferences wizard once per account
+- Allow skipping while still marking onboarding complete
 
 ---
 
@@ -336,7 +351,7 @@ Responsibilities
 
 Responsibilities
 
-- Browse Conferences
+- Browse Conferences (Upcoming / Past tabs)
 - Join Conferences
 - Leave Conferences
 
@@ -349,8 +364,7 @@ Responsibilities
 - Browse People
 - Search
 - Filters
-- Recommendations
-- Compatibility explanations
+- Recommendations (match percentage only; itemized reasoning not yet built)
 
 ---
 
@@ -359,10 +373,22 @@ Responsibilities
 Responsibilities
 
 - Create Crew
-- Join Crew
-- Leave Crew
+- Join Crew (request or invitation)
+- Manage Crew (approve/decline, invite, roles, ownership transfer, visibility)
+- Leave Crew / Delete Crew
 - View Crew
+- Crew Chat
 - Schedule Meetups
+
+---
+
+## Messaging Service
+
+Responsibilities
+
+- List a user's conversations with a latest-message preview
+- Send and receive direct messages in real time
+- Serve as the same underlying mechanism Crew Chat uses, scoped to crew membership
 
 ---
 
@@ -370,12 +396,14 @@ Responsibilities
 
 Responsibilities
 
-Notify users of:
+Notify users of, live and without a refresh:
 
-- Connection Requests
-- Crew Invitations
-- Meetups
-- Conference reminders
+- Connection requests
+- Connection acceptances
+- Crew join requests
+- Crew invitations
+
+Meetup reminders and conference reminders are not yet implemented.
 
 ---
 
@@ -414,6 +442,8 @@ Merge
 Deployment
 ```
 
+> As of this revision, the local build has run ahead of this workflow: the features described throughout this document exist locally but have not yet been pushed through Git Commit / Pull Request / Merge to the GitHub repository. See the README's Known Gaps.
+
 ---
 
 # Sprint-Based Development
@@ -438,9 +468,9 @@ Deliverables
 
 Authentication
 
-Professional Profile
+Onboarding
 
-Conference Preferences
+Professional Profile
 
 ---
 
@@ -462,35 +492,38 @@ Recommendations
 
 Connections
 
-Conference Crews
+Conference Crews (including Crew Chat)
+
+Live Notifications
 
 ---
 
 ## Sprint 4
 
+Direct Messaging
+
 Meetups
 
-Testing
+Visual identity (indigo/purple re-theme)
 
-Deployment
+Bug fixes (Realtime enablement, stale membership checks)
 
 ---
 
 # Folder Structure
 
-```text
-src/
+The application follows Next.js App Router conventions at the project root, without a `src/` wrapper:
 
-├── app/
-├── components/
-├── features/
-├── hooks/
-├── lib/
-├── services/
-├── styles/
-├── types/
-├── utils/
+```text
+web/
+├── app/            (routes: dashboard, onboarding, conferences, people,
+│                    crews/[id], messages, profile, etc.)
+├── components/     (layout, crew, and other shared components)
+├── lib/            (Supabase client and shared helpers)
+└── public/         (static assets, including the logo)
 ```
+
+A dedicated `features/`, `services/`, or `hooks/` folder was planned but has not been introduced; shared logic currently lives alongside the pages and components that use it.
 
 ---
 
@@ -514,12 +547,11 @@ The MVP should support:
 - Thousands of attendees
 - Conference-specific traffic spikes
 
-Future architecture should support:
+AI-based recommendations and messaging are already part of the MVP rather than future work. Future architecture should still support:
 
-- AI recommendations
-- Messaging
 - Session planning
 - Cross-conference communities
+- A server-side API layer for upcoming AI features (conference sourcing, richer matching)
 
 ---
 
@@ -527,10 +559,9 @@ Future architecture should support:
 
 As ConCrew grows, future services may include:
 
-- Recommendation Service
-- Messaging Service
-- Search Service
-- Notification Service
+- A small server-side API layer, scoped to AI features rather than a full REST surface
+- Search Service (as attendee and conference volume grows)
+- Itemized match-reasoning service, building on the existing embedding-based recommendations
 
 These services are intentionally postponed until the modular monolith reaches its scaling limits.
 
@@ -548,10 +579,11 @@ These services are intentionally postponed until the modular monolith reaches it
 # Key Decisions
 
 - Build a modular monolith.
-- Keep recommendations rule-based.
+- Use profile-similarity (embedding-based) recommendations rather than rule-based scoring.
 - Mobile-first architecture.
 - AI accelerates development but does not replace engineering judgment.
 - Optimize for maintainability over complexity.
+- Keep the client talking to Supabase directly for now; introduce a server-side API layer only when AI features need one.
 
 ---
 
@@ -561,3 +593,4 @@ These services are intentionally postponed until the modular monolith reaches it
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial architecture |
 | 2.0 | July 2026 | Tsadia Mabel | Refined after engineering planning and Sprint 0 preparation |
+| 2.1 | September 2026 | Tsadia Mabel | Corrected ADR-004 from rule-based to embedding-based (pgvector) recommendations; corrected ADR-002 to note there are no Next.js API Routes yet; added pgvector and Supabase Realtime to the stack; added Onboarding and Messaging Services and updated Crew and Notification Service responsibilities to match what shipped; corrected the folder structure to the real App Router layout; flagged the repo-versus-local-build gap in Development Workflow |
