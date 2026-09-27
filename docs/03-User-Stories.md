@@ -4,7 +4,7 @@
 > **Role:** Business Analyst  
 > **SDLC Phase:** Requirements Analysis  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -33,7 +33,7 @@ Each story represents a piece of user value that can be independently planned, d
 - User registers with email and password.
 - Email must be unique.
 - Password meets security requirements.
-- Successful registration redirects to profile creation.
+- Successful registration sends a confirmation email; after confirming and logging in for the first time, the user is taken to the Onboarding wizard rather than directly to profile creation.
 
 ---
 
@@ -49,7 +49,7 @@ Each story represents a piece of user value that can be independently planned, d
 
 - User enters valid credentials.
 - Invalid credentials display an error.
-- Successful login redirects to the dashboard.
+- Successful login redirects to the dashboard, unless onboarding hasn't been completed yet (see Onboarding story), in which case the user is redirected there first.
 
 ---
 
@@ -84,6 +84,24 @@ Each story represents a piece of user value that can be independently planned, d
 
 ---
 
+## Story: Onboarding (Compatibility Profile)
+
+**As a** newly registered user
+
+**I want** to be asked about my conference goals, interests, and networking style right after signing up
+
+**So that** ConCrew can start recommending relevant people and conferences immediately.
+
+### Acceptance Criteria
+
+- Shown once, immediately after a new user's first login.
+- User selects any number of Conference Goals, Interests, and Networking Preferences across a short, multi-step wizard.
+- User can skip the wizard; skipping still marks onboarding as complete so they aren't shown it again.
+- Existing accounts created before this feature are not forced through it retroactively.
+- Selections are saved to the user's profile and immediately available to Attendee Discovery filters and Conference recommendation reasoning.
+
+---
+
 ## Story: Create Profile
 
 **As a** conference attendee
@@ -96,7 +114,7 @@ Each story represents a piece of user value that can be independently planned, d
 
 Users can provide:
 
-- Profile picture
+- Profile picture *(not yet implemented — see Known Gaps in the README)*
 - Biography
 - Job title
 - Company
@@ -106,27 +124,6 @@ Users can provide:
 - GitHub
 
 Profile is successfully saved.
-
----
-
-## Story: Conference Preferences
-
-**As a** conference attendee
-
-**I want** to tell ConCrew about my conference preferences
-
-**So that** I receive relevant attendee recommendations.
-
-### Acceptance Criteria
-
-Users can specify:
-
-- Professional interests
-- Conference goals
-- Networking preferences
-- Industry
-- Years of experience
-- First-time attendee status
 
 ---
 
@@ -143,13 +140,13 @@ Users can specify:
 Users can edit:
 
 - Biography
-- Profile picture
 - Company
 - School
 - City
 - Job title
 - LinkedIn
 - GitHub
+- Conference Goals, Interests, and Networking Preferences (the same fields set during Onboarding)
 
 ---
 
@@ -161,17 +158,19 @@ Users can edit:
 
 **As a** user
 
-**I want** to browse conferences
+**I want** to browse conferences, split into Upcoming and Past
 
-**So that** I can find events I plan to attend.
+**So that** I can find events I plan to attend and look back on ones I've already been to.
 
 ### Acceptance Criteria
 
 Users can:
 
-- View conference list
+- View an Upcoming tab and a Past tab, each with a count
 - View conference details
-- Search conferences
+- Search conferences by name or location
+- Filter by category and month
+- See a note on a conference card when one or more people they'd likely match with are already attending
 
 ---
 
@@ -239,14 +238,16 @@ Users can search by:
 
 ### Acceptance Criteria
 
-Filters include:
+Filters currently include:
 
 - Company
 - School
 - City
+- Job title
 - Interests
-- Conference goals
 - Networking preferences
+
+Filtering by Conference Goals, Skills, or Years of Experience is not yet implemented.
 
 ---
 
@@ -260,15 +261,9 @@ Filters include:
 
 ### Acceptance Criteria
 
-Recommendations explain why users were matched.
-
-Examples:
-
-- Shared interests
-- Same company
-- Same school
-- Similar conference goals
-- Similar networking preferences
+- Recommendations are ranked using profile-similarity matching (embeddings), shown as a match percentage on each card.
+- A user must save their profile at least once to be included in matching.
+- Itemized "why you matched" reasoning (e.g., "same company," "shared interest") is not yet shown; only the overall match percentage is currently displayed.
 
 ---
 
@@ -286,9 +281,9 @@ Profiles display:
 
 - Biography
 - Professional information
-- Interests
-- Conference goals
-- Compatibility reasons
+- Conferences shared with the viewer
+- Crews shared with the viewer ("Mutual Crew")
+- Connect / Message actions
 
 ---
 
@@ -302,9 +297,7 @@ Profiles display:
 
 ### Acceptance Criteria
 
-- User saves attendee.
-- Saved attendees appear in a dedicated list.
-- User removes saved attendees.
+- Not yet implemented. Kept in the backlog; connecting with someone is currently the only way to keep track of them.
 
 ---
 
@@ -324,7 +317,8 @@ Profiles display:
 
 - Request sent successfully.
 - Duplicate requests prevented.
-- Recipient accepts or declines.
+- Recipient receives a live notification and can accept or decline directly from it.
+- Sender receives a live notification when their request is accepted.
 
 ---
 
@@ -358,7 +352,8 @@ Profiles display:
 
 - Crew name entered.
 - Description added.
-- Organizer becomes first member.
+- Visibility set (public or private).
+- Organizer becomes first member, with the "owner" role.
 
 ---
 
@@ -366,14 +361,36 @@ Profiles display:
 
 **As a** conference attendee
 
-**I want** to request to join a crew
+**I want** to request to join a public crew, or accept an invitation to a private one
 
 **So that** I can become part of a networking group.
 
 ### Acceptance Criteria
 
-- Join request submitted.
-- Organizer approves request.
+- Public crews: join request submitted, an owner or admin approves or declines it.
+- Private crews: join only by invitation from an owner or admin.
+- Approving a request or accepting an invitation updates the requester's membership live, without a refresh.
+
+---
+
+## Story: Manage Crew
+
+**As a** crew owner or admin
+
+**I want** to manage membership and settings
+
+**So that** I can keep the crew organized and appropriately sized.
+
+### Acceptance Criteria
+
+- Approve or decline join requests.
+- Invite eligible conference attendees who aren't already members.
+- Revoke a pending invitation.
+- Promote a member to admin, or remove admin status.
+- Remove a member from the crew.
+- Transfer ownership to another member.
+- Change crew visibility between public and private.
+- New join requests and membership changes appear live to anyone viewing the crew, without a refresh.
 
 ---
 
@@ -387,7 +404,24 @@ Profiles display:
 
 ### Acceptance Criteria
 
-- Membership removed successfully.
+- A confirmation dialog is shown before leaving.
+- Membership removed successfully upon confirmation.
+- The crew's owner cannot leave until ownership is transferred to someone else.
+
+---
+
+## Story: Delete Crew
+
+**As a** crew owner
+
+**I want** to delete a crew I created
+
+**So that** I can remove it if it's no longer needed.
+
+### Acceptance Criteria
+
+- A confirmation dialog is shown before deleting.
+- Deleting removes the crew, its members, join requests, invitations, and scheduled meetups.
 
 ---
 
@@ -403,10 +437,27 @@ Profiles display:
 
 Display:
 
-- Members
+- Members, with an avatar stack and total count
 - Description
 - Conference
 - Upcoming meetups
+- Crew chat
+
+---
+
+## Story: Crew Chat
+
+**As a** crew member
+
+**I want** to chat with my crew in real time
+
+**So that** we can coordinate without leaving the platform.
+
+### Acceptance Criteria
+
+- Only current members can view or send messages.
+- Messages appear for all members in real time.
+- If someone's membership is granted while they're on the crew page (a join request gets approved), the chat opens automatically without needing a refresh.
 
 ---
 
@@ -433,13 +484,54 @@ Meetups include:
 
 ---
 
+# Epic: Messaging
+
+---
+
+## Story: Direct Messages
+
+**As a** user
+
+**I want** to message a connection directly
+
+**So that** I can coordinate one-on-one without waiting to meet in person.
+
+### Acceptance Criteria
+
+- A Messages section lists all active conversations with a preview of the last message.
+- Opening a conversation shows the full message history.
+- New messages arrive in real time, without a refresh, and switching between conversations doesn't flash stale content.
+
+---
+
+# Epic: Notifications
+
+---
+
+## Story: Live Notifications
+
+**As a** user
+
+**I want** to be notified the moment something needs my attention
+
+**So that** I don't have to keep checking pages manually.
+
+### Acceptance Criteria
+
+- A bell icon shows an unread count.
+- New notifications (connection requests, connection acceptances, crew join requests, crew invitations) appear live, without a refresh.
+- Connection and crew requests can be accepted or declined directly from the notification.
+- A notification resolved elsewhere (e.g., approved from the crew page instead of the bell) disappears from the bell live.
+
+---
+
 # MVP Priorities
 
 ## Must Have
 
 - Authentication
+- Onboarding
 - User Profiles
-- Conference Preferences
 - Browse Conferences
 - Join Conferences
 - Browse People
@@ -447,21 +539,23 @@ Meetups include:
 - Filters
 - Recommendations
 - Connection Requests
-- Crews
+- Crews (including chat)
+- Messaging
+- Notifications
 
 ---
 
 ## Should Have
 
 - Meetup Scheduling
-- Notifications
 
 ---
 
 ## Future Releases
 
-- AI Recommendations
-- Messaging
+- Itemized "why you matched" recommendation reasoning
+- Save/bookmark attendees
+- Skills and Years of Experience as filters
 - QR Networking
 - Calendar Integration
 - Session Planning
@@ -471,10 +565,10 @@ Meetups include:
 # Key Decisions
 
 - Recommendations are prioritized before manual browsing.
-- Conference Preferences drive attendee recommendations.
+- Conference Preferences (Goals, Interests, Networking style), collected during Onboarding, drive attendee recommendations and filtering.
 - Small conference crews are preferred over large communities.
-- Messaging is intentionally excluded from the MVP.
-- Recommendations will initially be rule-based rather than AI-powered.
+- Recommendations use profile-similarity (embedding-based) matching rather than exact-field rule scoring.
+- Messaging and live notifications, originally deferred, were brought into the MVP once the crew and connection flows needed a way to act on requests without constant manual refreshing.
 
 ---
 
@@ -484,3 +578,4 @@ Meetups include:
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial user stories |
 | 2.0 | July 2026 | Tsadia Mabel | Updated to align with Jira backlog, refined user journey, and MVP priorities |
+| 2.1 | September 2026 | Tsadia Mabel | Added Onboarding, Manage Crew, Delete Crew, Crew Chat, Messaging, and Notifications stories; corrected Recommendations, Filters, and Save Attendees acceptance criteria to match what's actually built; reversed the "messaging excluded" and "rule-based recommendations" decisions, both superseded |
