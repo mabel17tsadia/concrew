@@ -9,7 +9,7 @@ The following low-fidelity wireframes illustrate the primary user experience for
 > **Role:** Product Manager & UX Designer  
 > **SDLC Phase:** UX Design  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -26,6 +26,8 @@ The objective of these wireframes is **not** to create the final visual design, 
 - Information architecture
 
 These wireframes serve as the blueprint for future UI implementation.
+
+> **Note on this revision:** each screen below now says whether it shipped as designed, shipped with changes, or is still a future screen. The wireframes themselves were not redrawn; this is a status check against the built app.
 
 ---
 
@@ -74,9 +76,9 @@ Landing Page
         ↓
 Create Account
         ↓
-Create Professional Profile
+Onboarding (Conference Goals, Interests, Networking Preferences)
         ↓
-Complete Conference Preferences
+Create Professional Profile
         ↓
 Browse Conferences
         ↓
@@ -86,13 +88,11 @@ Browse People
         ↓
 Receive Recommendations
         ↓
-View Compatibility Reasons
-        ↓
 Connect
         ↓
 Create / Join Crew
         ↓
-Meet During Conference
+Meet During Conference (Crew Chat, Messaging)
         ↓
 Maintain Professional Relationships
 ```
@@ -104,6 +104,8 @@ Maintain Professional Relationships
 ---
 
 ## Screen 1 — Landing Page
+
+**Status: Shipped as designed**
 
 ### Purpose
 
@@ -119,6 +121,8 @@ Introduce ConCrew and clearly communicate the product value.
 
 ## Screen 2 — Authentication
 
+**Status: Shipped as designed**
+
 ### Purpose
 
 Allow users to securely access the platform.
@@ -131,23 +135,15 @@ Allow users to securely access the platform.
 
 ---
 
-## Screen 3 — Conference Preferences
+## Screen 3 — Onboarding (originally "Conference Preferences")
+
+**Status: Shipped with changes.** This screen shipped as a short post-signup wizard rather than a single form, and collects fewer fields than originally planned. Professional Information (Job Title, Company, School, City, Years of Experience) is collected separately on the profile, not here. Session Interests was not built.
 
 ### Purpose
 
 Collect information that helps personalize attendee recommendations.
 
 ### Sections
-
-#### Professional Information
-
-- Job Title
-- Company
-- School
-- City
-- Years of Experience
-
----
 
 #### Conference Goals
 
@@ -162,7 +158,7 @@ Examples:
 
 ---
 
-#### Technical Interests
+#### Interests
 
 Examples:
 
@@ -188,17 +184,13 @@ Examples:
 
 ---
 
-#### Session Interests (Optional)
-
-Users may select sessions they intend to attend.
-
----
-
-> These preferences power the recommendation engine.
+> These preferences power the recommendation engine and the People page filters. The wizard can be skipped; skipping still marks it complete so the user isn't shown it again.
 
 ---
 
 ## Screen 4 — Dashboard
+
+**Status: Shipped with changes.** "Active Crew" and "Pending Invitations" became a combined "Your Crews" widget; "Quick Actions" was replaced with "Recent Messages" and "Recommended People" widgets.
 
 ### Purpose
 
@@ -206,15 +198,16 @@ Provide a personalized overview of the user's conference activity.
 
 ### Components
 
-- Upcoming Conferences
+- Upcoming Conferences (profile-completion checklist if incomplete)
 - Recommended People
-- Active Crew
-- Pending Invitations
-- Quick Actions
+- Your Crews
+- Recent Messages
 
 ---
 
 ## Screen 5 — Conferences
+
+**Status: Shipped with changes.** Added Upcoming/Past tabs and per-card match-based reasoning, neither of which was in the original wireframe.
 
 ### Purpose
 
@@ -222,15 +215,19 @@ Allow users to discover and join conferences.
 
 ### Features
 
-- Browse Conferences
+- Browse Conferences, split into Upcoming and Past tabs
 - Search Conferences
+- Filter by category and month
 - View Conference Details
 - Join Conference
 - Leave Conference
+- See a note when people the user would likely match with are attending
 
 ---
 
 ## Screen 6 — Browse People
+
+**Status: Shipped with changes.** Recommendations show a match percentage, not an itemized reason. "Save" was not built.
 
 ### Purpose
 
@@ -238,65 +235,51 @@ Help attendees discover compatible people.
 
 The top of the page displays personalized recommendations before the full attendee list.
 
-Each recommendation explains why the user was matched.
-
 Example
 
 **Sarah**
 
 - AI Engineer
-- Interested in AI Agents
-- First-Time Attendee
-- Attending the Same Conference
+- 92% match
 
 Actions:
 
 - View Profile
-- Save
 - Connect
 
 ---
 
 ## Screen 7 — Search & Filters
 
+**Status: Shipped with changes.** Skills, Years of Experience, Conference Goals, and Sessions filters were not built. Interests and Networking Preferences were added, which were not in the original wireframe's filter groups.
+
 ### Purpose
 
 Allow users to refine attendee discovery.
 
-### Professional Filters
+### Implemented Filters
 
 - Company
 - School
 - City
 - Job Title
+- Interests
+- Networking Preferences
 
 ---
 
-### Technical Filters
+### Not Yet Implemented
 
-- Interests
 - Skills
 - Years of Experience
-
----
-
-### Conference Filters
-
 - Conference Goals
 - Sessions
 
 ---
 
-### Networking Filters
-
-- Coffee Chats
-- Lunch Groups
-- Workshop Discussions
-- First-Time Attendees
-
----
-
 ## Screen 8 — User Profile
+
+**Status: Shipped with changes.** "Compatibility Reasons" was not built; profiles show shared conferences and mutual crew instead.
 
 ### Purpose
 
@@ -308,14 +291,14 @@ Provide enough information for attendees to determine compatibility.
 - Professional Information
 - Interests
 - Conference Goals
-- Current Conferences
-- Crew Membership
-- Shared Interests
-- Compatibility Reasons
+- Shared Conferences
+- Mutual Crew
 
 ---
 
-## Screen 9 — Messages *(Future MVP+)*
+## Screen 9 — Messages
+
+**Status: Shipped.** This screen was originally tagged "Future MVP+" but shipped as part of the MVP, with real-time delivery.
 
 ### Purpose
 
@@ -328,9 +311,16 @@ Typical conversations include:
 - Introducing crew members
 - Coordinating conference activities
 
+### Implementation Notes
+
+- A conversation-list sidebar shows a preview of the latest message.
+- Messages arrive live, without a refresh.
+
 ---
 
 ## Screen 10 — Conference Crews
+
+**Status: Shipped with additions.** Manage Crew (approve/decline requests, invite, change roles, transfer ownership, change visibility) and Delete Crew were added beyond the original wireframe.
 
 ### Purpose
 
@@ -339,9 +329,10 @@ Help attendees form small networking communities.
 ### Features
 
 - Create Crew
-- Join Crew
-- Invite Members
-- Leave Crew
+- Join Crew (request-to-join for public crews, invitation for private ones)
+- Manage Crew
+- Leave Crew (with confirmation)
+- Delete Crew (owner only, with confirmation)
 - View Crew Information
 
 ### Recommended Crew Size
@@ -354,18 +345,21 @@ This encourages active participation while keeping conversations manageable.
 
 ## Screen 11 — Crew Details
 
+**Status: Shipped with changes.** Crew Chat shipped (the "Future" tag no longer applies). "Shared Sessions" was not built.
+
 Displays:
 
-- Members
+- Members, with an avatar stack
 - Upcoming Meetups
 - Shared Interests
-- Shared Sessions
-- Crew Chat *(Future)*
+- Crew Chat
 - Invitations
 
 ---
 
 ## Screen 12 — Meetup Planner
+
+**Status: Shipped as designed.**
 
 ### Purpose
 
@@ -384,13 +378,14 @@ Examples:
 
 ## Screen 13 — Notifications
 
+**Status: Shipped with changes.** Meetup-scheduled, recommendation-changed, and conference-approaching notifications were not built.
+
 Notify users when:
 
 - A connection request is received.
+- A connection request is accepted.
+- A crew join request is received.
 - A crew invitation is received.
-- A meetup is scheduled.
-- A recommendation changes.
-- A conference is approaching.
 
 ---
 
@@ -414,10 +409,10 @@ Several important UX decisions were made during wireframing.
 
 - Users complete onboarding before receiving recommendations.
 - Browse People displays recommendations first.
-- Compatibility explanations build trust.
+- A match percentage builds trust; itemized compatibility explanations were deferred.
 - Small crews encourage stronger relationships.
 - Navigation remains consistent across the application.
-- Discovery is prioritized over messaging.
+- Discovery was prioritized first, though messaging and live notifications shipped earlier than planned once crew and connection flows needed them.
 - The platform supports both pre-conference planning and in-person networking.
 
 ---
@@ -427,9 +422,7 @@ Several important UX decisions were made during wireframing.
 The following UX questions remain under consideration.
 
 - Should users join multiple crews?
-- Should crews be public, private, or invite-only?
 - What is the ideal crew size?
-- Should messaging require an accepted connection?
 - Should recommendations update continuously?
 - Should conference organizers create official crews?
 
@@ -451,3 +444,4 @@ The following UX questions remain under consideration.
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial wireframe specification |
 | 2.0 | July 2026 | Tsadia Mabel | Updated after UX refinement and product discovery |
+| 2.1 | September 2026 | Tsadia Mabel | Marked each screen's build status against the shipped app; removed the "Future MVP+" tag from Messages and "Future" tag from Crew Chat, both now shipped; corrected Screen 3, 6, 7, 8, and 13 to match what was actually built; removed already-answered Open Questions about crew visibility and messaging gating |
