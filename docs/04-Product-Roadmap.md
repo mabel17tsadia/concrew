@@ -4,7 +4,7 @@
 > **Role:** Product Manager  
 > **SDLC Phase:** Product Planning  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -13,6 +13,8 @@
 This roadmap outlines the planned evolution of ConCrew from an initial Minimum Viable Product (MVP) into a mature conference networking platform.
 
 Rather than delivering every possible feature at once, development follows an incremental strategy that validates the highest-risk assumptions first before investing in more advanced functionality.
+
+> **Note on this revision:** while discovery was sequenced first as planned, several features originally scoped for Release 2 and Release 3 (Crew Chat, Direct Messaging, Live Notifications, Meetup Scheduling) turned out to be needed earlier than expected, since the crew and connection flows were not usable without a way to act on requests live. They were pulled forward into the MVP rather than held for a later release. This document reflects what actually shipped; see [Known Gaps](../README.md#known-gaps) in the README for what has not.
 
 ---
 
@@ -34,7 +36,7 @@ The MVP therefore prioritizes:
 - Compatibility recommendations
 - Small conference crews
 
-Advanced networking capabilities will be introduced only after validating these core assumptions.
+In practice, the tools attendees need to act on a discovery (accepting a connection, approving a join request, chatting with a crew) turned out to be part of making discovery itself feel worthwhile, so they shipped alongside it rather than after it.
 
 ---
 
@@ -45,9 +47,7 @@ Conference Discovery
         ↓
 Attendee Discovery
         ↓
-Conference Crews
-        ↓
-Conference Collaboration
+Conference Crews (+ live coordination: chat, messaging, notifications)
         ↓
 Long-Term Professional Networking
         ↓
@@ -56,7 +56,7 @@ AI-Powered Networking
 
 ---
 
-# Release 1 — Minimum Viable Product
+# Release 1 — Minimum Viable Product (Shipped)
 
 ## Objective
 
@@ -75,20 +75,26 @@ Validate that attendees receive value from discovering compatible people before 
 
 ---
 
+### Onboarding
+
+- A short post-signup wizard collecting Conference Goals, Interests, and Networking Preferences
+- Skippable, but marks the account as onboarded either way
+- Existing accounts are not forced through it retroactively
+
+---
+
 ### User Profiles
 
 - Professional Profile
-- Conference Preferences
-- Professional Interests
-- Networking Preferences
+- Conference Goals, Interests, and Networking Preferences (set during Onboarding, editable afterward)
 
 ---
 
 ### Conference Discovery
 
-- Browse Conferences
+- Browse Conferences, split into Upcoming and Past
 - Join Conferences
-- Conference Dashboard
+- A note on conference cards when people the user would likely match with are attending
 
 ---
 
@@ -96,25 +102,37 @@ Validate that attendees receive value from discovering compatible people before 
 
 - Browse People
 - Search
-- Filters
-- Recommendations
-- Compatibility Reasons
+- Filters (School, City, Company, Job Title, Interests, Networking Style)
+- Recommendations, ranked by profile-similarity (embedding) matching
+
+Itemized compatibility reasoning ("same company," "shared interest") was originally planned for this release but is not yet built; only an overall match percentage is shown today. See Release 4.
 
 ---
 
 ### Networking
 
-- Connection Requests
+- Connection Requests, with live notifications on both ends
 - View Connections
 
 ---
 
 ### Conference Crews
 
-- Create Crew
-- Join Crew
-- Leave Crew
+- Create Crew (public or private)
+- Join Crew (request-to-join for public crews, invitation for private ones)
+- Manage Crew (approve or decline requests, invite people, change roles, transfer ownership, change visibility)
+- Leave Crew, with confirmation
+- Delete Crew, with confirmation
 - View Crew
+- Crew Chat, a real-time chat scoped to members, originally planned for Release 3
+
+---
+
+### Communication (pulled forward from later releases)
+
+- Direct Messaging, one-to-one, real-time
+- Live Notifications, with inline accept and decline actions
+- Meetup Scheduling, for a crew's planned get-togethers
 
 ---
 
@@ -141,11 +159,10 @@ Support collaboration during conferences.
 
 ## Features
 
-- Meetup Scheduling
-- Crew Dashboard
-- Shared Meetups
-- Lunch Planning
-- Coffee Chats
+Meetup Scheduling and Crew Chat, originally scoped here, shipped as part of the MVP instead (see Release 1). What remains for this release:
+
+- Richer Crew Dashboard (activity summary across a member's crews)
+- Lunch Planning and Coffee Chat templates for meetups
 - Group Activities
 
 ---
@@ -168,9 +185,10 @@ Extend networking beyond the conference.
 
 ## Features
 
-- Messaging
-- Conversation History
-- Shared Connections
+Direct Messaging and Live Notifications, originally scoped here, shipped as part of the MVP instead (see Release 1). What remains for this release:
+
+- Persistent conversation history beyond the current session
+- Shared Connections (mutual-connection visibility)
 - Future Conference Planning
 - Networking Timeline
 
@@ -194,7 +212,7 @@ Improve attendee recommendations through AI.
 
 ## Planned Features
 
-- AI Compatibility Scoring
+- Itemized "why you matched" compatibility reasoning, combining stated interests with embedding similarity
 - Personalized Introductions
 - Session Recommendations
 - Icebreaker Suggestions
@@ -240,7 +258,7 @@ Future Release
 
 # Sprint Roadmap
 
-The MVP will be delivered through iterative Scrum sprints.
+The MVP was delivered through iterative Scrum sprints.
 
 ---
 
@@ -274,8 +292,8 @@ Deliverables
 - Login
 - Logout
 - Reset Password
+- Onboarding (Conference Goals, Interests, Networking Preferences)
 - Create Profile
-- Conference Preferences
 
 ---
 
@@ -287,7 +305,7 @@ Conference Discovery
 
 Deliverables
 
-- Browse Conferences
+- Browse Conferences (Upcoming / Past)
 - Join Conferences
 - Browse People
 - Search
@@ -303,10 +321,10 @@ Attendee Discovery
 
 Deliverables
 
-- Recommendations
-- Compatibility Reasons
+- Recommendations (profile-similarity matching)
 - Connection Requests
 - View Connections
+- Live Notifications
 
 ---
 
@@ -319,9 +337,11 @@ Conference Crews
 Deliverables
 
 - Create Crew
-- Join Crew
-- Leave Crew
+- Join Crew (request/invite)
+- Manage Crew
+- Leave Crew / Delete Crew
 - View Crew
+- Crew Chat
 
 ---
 
@@ -329,25 +349,24 @@ Deliverables
 
 ### Goal
 
-Meetups, QA & MVP Release
+Messaging, Meetups & Visual Identity
 
 Deliverables
 
+- Direct Messaging
 - Meetup Scheduling
-- Final Testing
-- Bug Fixes
-- Deployment
-- Release Validation
+- Indigo/purple visual identity and logo
+- Bug fixes (realtime enablement, stale membership checks)
 
 ---
 
 # Current Backlog Priority
 
-## P0 — Must Have
+## P0 — Must Have (Shipped)
 
 - Authentication
+- Onboarding
 - User Profiles
-- Conference Preferences
 - Browse Conferences
 - Join Conferences
 - Browse People
@@ -355,20 +374,24 @@ Deliverables
 - Filters
 - Recommendations
 - Connection Requests
-- Conference Crews
+- Conference Crews (including Crew Chat)
+- Direct Messaging
+- Live Notifications
+- Meetup Scheduling
 
 ---
 
 ## P1 — Should Have
 
-- Meetups
-- Notifications
+- Push the local build to GitHub so the repository matches the running app
+- A small backend API layer to support upcoming AI features
 
 ---
 
 ## P2 — Future
 
-- Messaging
+- Itemized "why you matched" compatibility reasoning
+- Skills and Years of Experience as People filters
 - Calendar Integration
 - QR Networking
 
@@ -398,10 +421,10 @@ Deliverables
 
 # Key Decisions
 
-- Discovery is prioritized over messaging.
+- Discovery is prioritized over messaging, though messaging shipped earlier than planned once crew and connection flows needed a way to act on live requests.
 - Small crews are preferred over large communities.
-- Rule-based recommendations precede AI.
-- Messaging is intentionally excluded from the MVP.
+- Recommendations use profile-similarity (embedding-based) matching; a rule-based approach was considered but not built.
+- Crew Chat, Direct Messaging, Live Notifications, and Meetup Scheduling moved into the MVP from later releases.
 - Each sprint delivers working software.
 
 ---
@@ -412,3 +435,4 @@ Deliverables
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial roadmap |
 | 2.0 | July 2026 | Tsadia Mabel | Updated after Jira planning and sprint definition |
+| 2.1 | September 2026 | Tsadia Mabel | Reflected Crew Chat, Direct Messaging, Live Notifications, and Meetup Scheduling shipping as part of the MVP instead of later releases; corrected recommendations from rule-based to embedding-based; flagged itemized match reasoning as still future work; updated Sprint Roadmap and Backlog Priority to match what was actually delivered |
