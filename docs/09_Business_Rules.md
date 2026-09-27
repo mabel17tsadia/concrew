@@ -5,7 +5,7 @@
 > **Supporting Roles:** Product Manager, Software Engineer, QA Engineer  
 > **SDLC Phase:** Requirements Analysis  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -42,17 +42,9 @@ Each email address may only be associated with one account.
 
 ---
 
-### BR-3 Profile Completion
+### BR-3 Onboarding Is Not a Hard Gate
 
-Users must complete their professional profile and conference preferences before attendee recommendations are generated.
-
-Required information includes:
-
-- Job Title
-- Company
-- City
-- At least one professional interest
-- At least one conference goal
+A new user is shown the Onboarding wizard (Conference Goals, Interests, Networking Preferences) once, immediately after first login, but may skip it. Skipping still marks onboarding complete. There is no required minimum of fields; a user who skips can still use the platform, though they will not appear in matching until they save a profile.
 
 ---
 
@@ -78,7 +70,7 @@ Users may join multiple conferences simultaneously.
 
 ### BR-7 Conference Administration
 
-Only administrators may create, edit, or remove conferences.
+Conferences are currently added directly in the Supabase table editor. There is no administrator role or admin UI in the application yet.
 
 ---
 
@@ -86,35 +78,19 @@ Only administrators may create, edit, or remove conferences.
 
 ### BR-8 Recommendation Eligibility
 
-Recommendations are generated only after conference preferences have been completed.
+Recommendations require the user to have saved a profile at least once, which generates the embedding used for matching. Completing Onboarding is not itself required.
 
 ---
 
 ### BR-9 Compatibility Factors
 
-Recommendations may consider:
-
-- Professional interests
-- Conference goals
-- Networking preferences
-- Company
-- School
-- City
-- Planned sessions
-- Years of experience
+Recommendations rank attendees by profile-similarity (embedding) matching computed from saved profile content, not by scoring individual fields such as company, school, or years of experience.
 
 ---
 
 ### BR-10 Recommendation Transparency
 
-Every recommendation must explain why it was generated.
-
-Example:
-
-- Shared AI interests
-- Same conference
-- Similar networking goals
-- First-time attendee
+Not currently implemented. Each recommendation shows an overall match percentage; it does not explain which specific factors contributed to that score.
 
 ---
 
@@ -134,7 +110,7 @@ Connections become active only after recipient approval.
 
 ### BR-13 Blocking
 
-Blocked users may not send connection requests.
+Not currently implemented. There is no way to block another user from sending a connection request.
 
 ---
 
@@ -142,15 +118,13 @@ Blocked users may not send connection requests.
 
 ### BR-14 Crew Ownership
 
-The creator of a crew automatically becomes its organizer.
+The creator of a crew automatically becomes its owner. An owner may transfer ownership to another member, and may promote members to admin.
 
 ---
 
 ### BR-15 Crew Size
 
-Conference crews shall contain a maximum of **5 members**, including the organizer.
-
-This value may change following user research.
+Not currently enforced by the system. A target range of 3 to 5 members is a design guideline, not a system-enforced cap.
 
 ---
 
@@ -158,38 +132,51 @@ This value may change following user research.
 
 Users may participate in multiple crews for the same conference.
 
-This assumption will be validated during usability testing.
-
 ---
 
 ### BR-17 Join Requests
 
-Private crews require organizer approval.
+Public crews require an owner's or admin's approval of a join request. Private crews are joined only by invitation from an owner or admin; there is no public request-to-join path for a private crew.
 
 ---
 
 ### BR-18 Leaving a Crew
 
-Members may leave at any time.
+Members may leave at any time, after confirming in a dialog. An owner cannot leave until ownership has been transferred to another member; there is no automatic dissolution of a crew.
 
-If the organizer leaves:
+---
 
-- Ownership transfers to another member, or
-- The crew is dissolved.
+### BR-19 Deleting a Crew
+
+Only the owner may delete a crew, after confirming in a dialog. Deleting removes the crew's members, join requests, invitations, and scheduled meetups.
 
 ---
 
 # Meetup Rules
 
-### BR-19 Meetup Creation
+### BR-20 Meetup Creation
 
-Only crew organizers may create official crew meetups.
+Only crew owners and admins may create crew meetups.
 
 ---
 
-### BR-20 Meetup Visibility
+### BR-21 Meetup Visibility
 
 Meetup details are visible only to crew members.
+
+---
+
+# Messaging & Notification Rules
+
+### BR-22 Crew Chat Membership
+
+Only current crew members may view or send messages in that crew's chat.
+
+---
+
+### BR-23 Notification Delivery
+
+Notifications (connection requests, connection acceptances, crew join requests, crew invitations) are delivered live, without a page refresh. Resolving a request from one place (for example, the crew page) removes the corresponding notification everywhere else live.
 
 ---
 
@@ -235,7 +222,7 @@ The platform supports in-person networking rather than replacing it.
 
 **The conference is the experience.**
 
-ConCrew exists to improve conferences—not become the primary destination.
+ConCrew exists to improve conferences, not become the primary destination.
 
 ---
 
@@ -351,9 +338,15 @@ Temporary network interruptions should not result in data loss.
 
 ---
 
+### NFR-17
+
+Live updates (crew membership, join requests, notifications, messages) require the relevant table to be added to Supabase's `supabase_realtime` publication. This is a project-level configuration setting, not something the application code controls on its own.
+
+---
+
 ## Scalability
 
-### NFR-17
+### NFR-18
 
 The system should support thousands of users across multiple conferences without significant performance degradation.
 
@@ -361,7 +354,7 @@ The system should support thousands of users across multiple conferences without
 
 ## Maintainability
 
-### NFR-18
+### NFR-19
 
 The application shall use a modular architecture to support future enhancements.
 
@@ -372,10 +365,10 @@ The application shall use a modular architecture to support future enhancements.
 The MVP assumes:
 
 - Users already possess conference tickets.
-- Conferences are administered by platform administrators.
+- Conferences are administered directly through the database, not an admin UI.
 - Most users access the application using mobile devices.
 - Users are willing to provide professional profile information.
-- Recommendations are initially rule-based.
+- Recommendations use profile-similarity (embedding-based) matching, not rule scoring.
 
 ---
 
@@ -385,8 +378,8 @@ The MVP is intentionally limited to:
 
 - Mobile-first responsive web application
 - Secure authentication
-- Rule-based recommendations
-- Small conference crews
+- Embedding-based recommendations without itemized reasoning
+- Small conference crews, as a guideline rather than an enforced limit
 - Networking before and during conferences
 
 ---
@@ -395,12 +388,12 @@ The MVP is intentionally limited to:
 
 The following questions remain under evaluation.
 
-- What is the ideal crew size?
+- What is the ideal crew size, and should it become an enforced limit?
 - Should users be limited to one crew?
-- When should messaging be introduced?
-- Which compatibility factors matter most?
-- Should organizers receive moderation tools?
+- Which compatibility factors matter most for itemized match reasoning?
+- Should owners and admins receive moderation tools?
 - How much information should be visible before connecting?
+- Should blocking be added?
 
 ---
 
@@ -417,10 +410,10 @@ This document supports:
 
 # Key Decisions
 
-- Conference Preferences drive recommendations.
-- Discovery is prioritized over messaging.
-- Small crews are central to the product experience.
-- Rule-based recommendations are sufficient for MVP validation.
+- Onboarding, not a required Conference Preferences gate, feeds recommendations; skipping it is allowed.
+- Discovery was prioritized first, though messaging and live notifications shipped earlier than planned once crew and connection flows needed them.
+- Small crews are central to the product experience, but crew size is not currently enforced.
+- Embedding-based recommendations replaced the originally planned rule-based approach.
 
 ---
 
@@ -430,3 +423,4 @@ This document supports:
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial document |
 | 2.0 | July 2026 | Tsadia Mabel | Updated after product refinement and engineering planning |
+| 2.1 | September 2026 | Tsadia Mabel | Corrected BR-3, BR-8 through BR-10, BR-13, and BR-15 to match what's built (onboarding is skippable, recommendations are embedding-based with no itemized reasoning, blocking and crew-size limits are not implemented); added BR-19 (Delete Crew), BR-22–BR-23 (Crew Chat, Notification Delivery), and NFR-17 (Realtime depends on the Supabase publication setting); removed the resolved "when should messaging be introduced" question; reversed the rule-based-recommendations assumption |
