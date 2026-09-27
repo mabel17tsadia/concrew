@@ -4,8 +4,8 @@
 > **Role:** Software Engineer  
 > **Supporting Roles:** Business Analyst, Product Manager, QA Engineer  
 > **SDLC Phase:** Solution Design  
-> **Status:** Approved  
-> **Version:** MVP v1.0
+> **Status:** Approved (Target Design, Not Yet Implemented)  
+> **Version:** MVP v2.1
 
 ---
 
@@ -16,6 +16,8 @@ This document defines the REST API for the ConCrew MVP.
 The API provides communication between the frontend application and backend services while enforcing business rules, authentication, and authorization.
 
 This specification is technology-independent and describes the behavior expected from every endpoint.
+
+> **Note on this revision:** as of this revision, none of the REST endpoints below have been built. The application queries Supabase's PostgreSQL tables directly from the client, using Supabase's auto-generated data API and a small number of database functions (`match_profiles` for recommendations, `get_or_create_crew_conversation` for crew chat), secured by Row-Level Security rather than by a custom API layer. This document remains the target design for the server-side API layer described in the Roadmap and System Architecture documents (planned once AI features need server-side logic), and has been updated to describe the right endpoints for what the product actually does today, even though none of them exist yet.
 
 ---
 
@@ -64,7 +66,7 @@ Next.js Frontend
  HTTPS Requests
     │
     ▼
-REST API
+REST API (planned)
     │
     ▼
 Supabase Services
@@ -72,6 +74,8 @@ Supabase Services
     ▼
 PostgreSQL
 ```
+
+Today, the "REST API" box above does not exist; the frontend calls Supabase directly in its place.
 
 ---
 
@@ -86,7 +90,7 @@ Register
 
 ↓
 
-Login
+Login (redirects to Onboarding if incomplete)
 
 ↓
 
@@ -105,21 +109,24 @@ Protected Resources
 
 # API Resources
 
-The MVP exposes the following resources.
+The MVP is designed around the following resources.
 
 | Resource | Description |
 |-----------|-------------|
-| Users | User profiles |
+| Users / Profiles | User profiles, including Conference Goals, Interests, and Networking Preferences |
 | Conferences | Conferences |
-| User Conferences | Conference membership |
-| Interests | Professional interests |
-| Goals | Conference goals |
-| Preferences | Networking preferences |
-| Recommendations | Compatible attendees |
+| Conference Attendees | Conference membership |
+| Recommendations | Compatible attendees, ranked by profile-similarity |
 | Connections | Professional connections |
 | Crews | Networking crews |
+| Crew Members | Crew membership and roles |
+| Crew Join Requests | Pending public-crew join requests |
+| Crew Invitations | Pending private-crew invitations |
 | Meetups | Crew meetups |
+| Conversations / Messages | Direct and crew messaging |
 | Notifications | User notifications |
+
+Interests, Goals, and Networking Preferences are not separate resources; they are fields on the Profile resource (see Data Model).
 
 ---
 
@@ -173,7 +180,7 @@ Initiates password recovery.
 
 ---
 
-# User Endpoints
+# User / Profile Endpoints
 
 ## Get Current User
 
@@ -183,7 +190,19 @@ Initiates password recovery.
 /api/users/me
 ```
 
-Returns the authenticated user's profile.
+Returns the authenticated user's profile, including onboarding status.
+
+---
+
+## Complete Onboarding
+
+**PATCH**
+
+```text
+/api/users/me/onboarding
+```
+
+Sets Conference Goals, Interests, Networking Preferences, and marks onboarding complete. Also used to record a skip.
 
 ---
 
@@ -195,7 +214,7 @@ Returns the authenticated user's profile.
 /api/users/me
 ```
 
-Updates profile information.
+Updates profile information. Triggers regeneration of the profile embedding used for recommendations.
 
 ---
 
@@ -207,7 +226,7 @@ Updates profile information.
 /api/users/{id}
 ```
 
-Returns public profile information.
+Returns public profile information, including shared conferences and mutual crews with the requester.
 
 Privacy rules apply.
 
@@ -220,6 +239,8 @@ Privacy rules apply.
 ```text
 GET /api/conferences
 ```
+
+Supports an `upcoming` or `past` filter.
 
 ---
 
@@ -276,7 +297,6 @@ Supported parameters:
 - name
 - company
 - school
-- city
 - jobTitle
 
 ---
@@ -289,26 +309,31 @@ GET /api/conferences/{id}/attendees/filter
 
 Supported filters:
 
+- company
+- school
+- city
+- jobTitle
 - interests
-- goals
 - networkingPreferences
-- sessions
+
+Filtering by Conference Goals, Skills, or Years of Experience is not yet supported by the underlying feature.
 
 ---
 
 ## Recommendations
 
 ```text
-GET /api/conferences/{id}/recommendations
+GET /api/people/recommendations
 ```
 
-Returns personalized attendee recommendations.
+Returns personalized attendee recommendations, ranked by profile-similarity matching.
 
 Each recommendation includes:
 
 - User summary
-- Compatibility explanation
-- Match reasons
+- Match percentage
+
+Itemized compatibility reasoning is not yet part of the underlying feature and is not returned.
 
 ---
 
@@ -377,11 +402,61 @@ GET /api/crews/{id}
 
 ---
 
-## Join Crew
+## Join Crew (public)
 
 ```text
-POST /api/crews/{id}/join
+POST /api/crews/{id}/join-requests
 ```
+
+Submits a join request for a public crew.
+
+---
+
+## Respond to Join Request
+
+```text
+PATCH /api/crews/{id}/join-requests/{requestId}
+```
+
+Owner or admin only. Supported statuses: `approved`, `declined`.
+
+---
+
+## Invite Member (private crew)
+
+```text
+POST /api/crews/{id}/invitations
+```
+
+Owner or admin only.
+
+---
+
+## Revoke Invitation
+
+```text
+DELETE /api/crews/{id}/invitations/{invitationId}
+```
+
+---
+
+## Update Member Role
+
+```text
+PATCH /api/crews/{id}/members/{userId}
+```
+
+Owner only. Used to promote to admin, demote, or transfer ownership.
+
+---
+
+## Remove Member
+
+```text
+DELETE /api/crews/{id}/members/{userId}
+```
+
+Owner or admin only.
 
 ---
 
@@ -391,13 +466,27 @@ POST /api/crews/{id}/join
 POST /api/crews/{id}/leave
 ```
 
+Rejected for the current owner until ownership has been transferred.
+
 ---
 
-## Invite Member
+## Update Crew (visibility, description)
 
 ```text
-POST /api/crews/{id}/invite
+PATCH /api/crews/{id}
 ```
+
+Owner or admin only.
+
+---
+
+## Delete Crew
+
+```text
+DELETE /api/crews/{id}
+```
+
+Owner only.
 
 ---
 
@@ -419,7 +508,45 @@ GET /api/crews/{id}/meetups
 
 ---
 
-## Notification Endpoints
+# Messaging Endpoints
+
+## View Conversations
+
+```text
+GET /api/conversations
+```
+
+Returns direct conversations with a preview of the latest message.
+
+---
+
+## Get or Create Crew Conversation
+
+```text
+GET /api/crews/{id}/conversation
+```
+
+Returns the crew's chat conversation, creating it on first access. Restricted to current crew members.
+
+---
+
+## View Messages
+
+```text
+GET /api/conversations/{id}/messages
+```
+
+---
+
+## Send Message
+
+```text
+POST /api/conversations/{id}/messages
+```
+
+---
+
+# Notification Endpoints
 
 ## View Notifications
 
@@ -445,6 +572,12 @@ PATCH /api/notifications/read-all
 
 ---
 
+# Realtime Behavior
+
+None of the endpoints above push updates on their own. In the current implementation, and in this target design, live updates for crew membership, join requests, notifications, and messages are delivered through Supabase Realtime subscriptions over `postgres_changes`, not by polling these endpoints. A table must be added to the `supabase_realtime` publication for its changes to be delivered this way; this is a project-level setting, not something the API or its clients configure per request.
+
+---
+
 # Standard Response Format
 
 Successful responses should return:
@@ -464,8 +597,8 @@ Errors should return:
 {
   "success": false,
   "error": {
-    "code": "CREW_FULL",
-    "message": "The selected crew has reached its maximum capacity."
+    "code": "DUPLICATE_REQUEST",
+    "message": "A connection request already exists for this user."
   }
 }
 ```
@@ -481,9 +614,11 @@ Errors should return:
 | NOT_FOUND | Resource not found |
 | VALIDATION_ERROR | Invalid request |
 | DUPLICATE_REQUEST | Request already exists |
-| CREW_FULL | Maximum members reached |
 | ALREADY_MEMBER | User already belongs |
+| NOT_A_MEMBER | Action requires crew membership |
 | SERVER_ERROR | Unexpected server error |
+
+`CREW_FULL` has been removed: crew capacity is not currently enforced.
 
 ---
 
@@ -493,9 +628,10 @@ The API shall enforce:
 
 - Users edit only their own profiles.
 - Users join only valid conferences.
-- Private crew information is visible only to members.
+- Private crew information, including its chat, is visible only to members.
 - Duplicate connection requests are rejected.
-- Crew capacity rules are enforced.
+- Only an owner or admin manages crew membership and settings.
+- Only an owner deletes a crew or transfers ownership.
 
 ---
 
@@ -521,11 +657,13 @@ while maintaining backward compatibility.
 
 Future releases may introduce:
 
-- Messaging
-- AI Recommendations
+- Itemized "why you matched" recommendation reasoning
+- AI conference sourcing and review-queue endpoints
 - Session Planning
 - Calendar Integration
 - QR Networking
+
+Messaging is not listed here since it is already part of the product, just not yet served through a formal REST layer.
 
 ---
 
@@ -540,23 +678,25 @@ Future releases may introduce:
 
 # Key Decisions
 
-- REST architecture selected for simplicity.
-- Rule-based recommendations remain server-side.
-- Messaging excluded from MVP.
+- REST architecture selected for simplicity, as the target design once a server-side layer is introduced.
+- Recommendations use profile-similarity (embedding-based) matching, computed by a database function rather than application code.
+- Messaging is part of the MVP, implemented today directly against Supabase tables rather than through this API design.
 - Authentication handled by Supabase.
 - Responses follow a consistent format.
+- Live updates are delivered through Supabase Realtime, not through endpoint polling.
 
 ---
 
 # API Sequence Diagram (Runtime behavior)
 
-```User
+```text
+User
  │
  │ Login
  ▼
 Frontend
  │
- │ POST /api/auth/login
+ │ Supabase Auth sign-in (no /api/auth/login exists yet)
  ▼
 Supabase Auth
  │
@@ -564,18 +704,15 @@ Supabase Auth
  ▼
 Frontend
  │
- │ GET /api/conferences
+ │ Supabase client query (no GET /api/conferences exists yet)
  ▼
-API
- │
- │ Query
- ▼
-PostgreSQL
+PostgreSQL (via Supabase)
  │
  │ Data
  ▼
 Frontend
 ```
+
 ---
 
 ## Revision History
@@ -584,3 +721,4 @@ Frontend
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial API specification |
 | 2.0 | July 2026 | Tsadia Mabel | Updated after MVP refinement and architecture review |
+| 2.1 | September 2026 | Tsadia Mabel | Flagged that no REST endpoints have been built; the client queries Supabase directly. Removed Interest/Goal/Preference as separate resources; corrected Recommendations to match-percentage only; added Crew Join Request, Crew Invitation, Messaging, and crew-management endpoints; removed CREW_FULL; reversed the rule-based and messaging-excluded decisions; updated the sequence diagram and Future Endpoints to match reality |
