@@ -5,7 +5,7 @@
 > **Supporting Roles:** Software Engineer, QA Engineer  
 > **SDLC Phase:** Planning & Execution  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -24,17 +24,20 @@ It outlines:
 
 The objective is to deliver a functional MVP through incremental development while allowing for continuous testing, feedback, and improvement.
 
+> **Note on this revision:** the original plan targeted five sprints. As built, Crews and Messaging each needed more room than originally scoped, mainly to get live updates working correctly, so the plan below reflects six sprints. See DOC-004 Product Roadmap for the same breakdown from a release-planning perspective.
+
 ---
 
 # Delivery Strategy
 
-The ConCrew MVP will be delivered over **five sprints**:
+The ConCrew MVP will be delivered over **six sprints**:
 
 - Sprint 0 – Project Foundation
-- Sprint 1 – User Onboarding
-- Sprint 2 – Conference Discovery
-- Sprint 3 – Connections & Crews
-- Sprint 4 – Release Preparation
+- Sprint 1 – Authentication, Onboarding & Profiles
+- Sprint 2 – Conference Discovery & Attendee Browsing
+- Sprint 3 – Recommendations, Connections & Notifications
+- Sprint 4 – Conference Crews
+- Sprint 5 – Messaging, Meetups & Release Preparation
 
 Each sprint concludes with working software that can be demonstrated and evaluated.
 
@@ -45,10 +48,11 @@ Each sprint concludes with working software that can be demonstrated and evaluat
 | Sprint | Duration | Goal |
 |---------|----------|------|
 | Sprint 0 | 1 Week | Engineering Foundation |
-| Sprint 1 | 2 Weeks | Authentication & Profiles |
-| Sprint 2 | 2 Weeks | Conference Discovery |
-| Sprint 3 | 2 Weeks | Connections & Crews |
-| Sprint 4 | 2 Weeks | QA & Release |
+| Sprint 1 | 2 Weeks | Authentication, Onboarding & Profiles |
+| Sprint 2 | 2 Weeks | Conference Discovery & Attendee Browsing |
+| Sprint 3 | 2 Weeks | Recommendations, Connections & Notifications |
+| Sprint 4 | 2 Weeks | Conference Crews |
+| Sprint 5 | 2 Weeks | Messaging, Meetups, Visual Identity & Release |
 
 ---
 
@@ -70,6 +74,9 @@ Sprint 3
 Sprint 4
       │
       ▼
+Sprint 5
+      │
+      ▼
 MVP Release
 ```
 
@@ -87,12 +94,11 @@ Prepare the project for implementation.
 - Jira Software project
 - Next.js application
 - Supabase project
-- PostgreSQL database
+- PostgreSQL database, with the pgvector extension
 - Tailwind CSS
 - shadcn/ui
 - Initial database schema
 - Vercel deployment
-- CI/CD pipeline
 
 ### Definition of Done
 
@@ -103,11 +109,11 @@ Prepare the project for implementation.
 
 ---
 
-# Sprint 1 — Authentication & Profiles
+# Sprint 1 — Authentication, Onboarding & Profiles
 
 ## Sprint Goal
 
-Allow users to create an account and build a professional profile.
+Allow users to create an account, complete onboarding, and build a professional profile.
 
 ### Stories
 
@@ -115,90 +121,109 @@ Allow users to create an account and build a professional profile.
 - Log In
 - Log Out
 - Reset Password
+- Onboarding: Select Conference Goals, Interests, Networking Preferences (or skip)
 - Create Profile
 - Edit Profile
-- Upload Profile Photo
-- Conference Preferences
-- Select Interests
-- Select Goals
-- Select Networking Preferences
+
+`Upload Profile Photo` was planned for this sprint but was not completed.
 
 ### Sprint Outcome
 
-Users can register, authenticate, and complete onboarding.
+Users can register, authenticate, and complete (or skip) onboarding.
 
 ---
 
-# Sprint 2 — Conference Discovery
+# Sprint 2 — Conference Discovery & Attendee Browsing
 
 ## Sprint Goal
 
-Help users discover conferences and compatible attendees.
+Help users discover conferences and browse attendees.
 
 ### Stories
 
-- Browse Conferences
+- Browse Conferences (Upcoming / Past)
 - View Conference Details
 - Join Conference
 - Leave Conference
 - Browse Attendees
 - Search Attendees
 - Filter Attendees
-- View Recommendations
-- View Match Reasons
 
 ### Sprint Outcome
 
-Users can discover people they may want to meet before attending a conference.
+Users can find conferences and see who else is attending them.
 
 ---
 
-# Sprint 3 — Connections & Crews
+# Sprint 3 — Recommendations, Connections & Notifications
 
 ## Sprint Goal
 
-Allow attendees to form meaningful groups before the conference.
+Surface compatible people and let users act on that in real time.
 
 ### Stories
 
+- View Recommendations (profile-similarity match percentage)
 - Send Connection Request
 - Accept Connection
 - Decline Connection
 - View Connections
-- Create Crew
-- Join Crew
-- Leave Crew
-- View Crew Details
-- Create Meetup
-- View Notifications
+- View Notifications (live delivery)
+
+`View Match Reasons` (itemized reasoning) was planned for this sprint but was not completed; only the match percentage shipped.
 
 ### Sprint Outcome
 
-Users can build connections, organize into crews, and coordinate meetups.
+Users can discover people they may want to meet and connect with them, with live notification of the outcome.
 
 ---
 
-# Sprint 4 — QA & Release
+# Sprint 4 — Conference Crews
 
 ## Sprint Goal
 
-Prepare the application for production deployment.
+Allow attendees to organize into small groups and manage them.
 
 ### Stories
 
-- Functional Testing
-- Regression Testing
-- Accessibility Review
-- Performance Optimization
-- UI Polish
-- Documentation Review
-- Bug Fixes
-- Production Deployment
-- Portfolio Preparation
+- Create Crew
+- Request to Join Crew (public) / Invite to Crew (private)
+- Approve or Decline Join Requests
+- Manage Crew (roles, ownership transfer, visibility)
+- Leave Crew
+- Delete Crew
+- View Crew Details
+- Crew Chat
+- Live membership and join-request updates
 
 ### Sprint Outcome
 
-A production-ready MVP is deployed.
+Users can form and manage crews, and coordinate inside them through real-time chat, without needing to refresh the page.
+
+---
+
+# Sprint 5 — Messaging, Meetups & Release Preparation
+
+## Sprint Goal
+
+Round out communication and prepare the application for release.
+
+### Stories
+
+- Create Meetup
+- View Meetups
+- View Conversations
+- Send and Receive Direct Messages
+- Visual identity re-theme (indigo/purple, logo)
+- Functional Testing
+- Regression Testing
+- Bug Fixes
+- UI Polish
+- Documentation Review
+
+### Sprint Outcome
+
+A functionally complete MVP, still pending a few release steps; see Release Plan below.
 
 ---
 
@@ -260,31 +285,34 @@ A story is ready when:
 
 A story is complete when:
 
-- Code has been merged.
+- Code has been written and manually verified (automated unit tests are not yet in place).
 - Acceptance criteria are satisfied.
-- Unit tests pass.
 - QA verification is complete.
 - Documentation has been updated.
 - Feature is deployable.
+- Code has been merged into the main branch on GitHub.
+
+> As of this revision, several completed stories have not yet reached the last step; the local build is ahead of what is merged. See the README's Known Gaps.
 
 ---
 
 # Release Plan
 
-The MVP will be released after Sprint 4.
+The MVP is functionally complete through Sprint 5, pending the GitHub push described above.
 
 ### MVP Features
 
 - User Authentication
+- Onboarding
 - Professional Profiles
-- Conference Preferences
-- Conference Discovery
-- Attendee Discovery
-- Rule-Based Recommendations
+- Conference Discovery (Upcoming / Past)
+- Attendee Discovery, Search & Filters
+- Profile-Similarity (Embedding-Based) Recommendations
 - Connections
-- Conference Crews
+- Conference Crews, including Management and Crew Chat
 - Meetups
-- Notifications
+- Direct Messaging
+- Live Notifications
 
 ---
 
@@ -292,12 +320,15 @@ The MVP will be released after Sprint 4.
 
 The following capabilities are intentionally excluded from the MVP:
 
-- Direct Messaging
-- AI Recommendations
+- AI-Generated Itemized Match Reasoning
 - Session Planning
 - Calendar Integration
 - QR Networking
 - Travel Coordination
+- Server-side API layer (planned once AI features need it)
+- Automated testing
+
+Direct Messaging is no longer deferred; it shipped in Sprint 5.
 
 ---
 
@@ -305,11 +336,12 @@ The following capabilities are intentionally excluded from the MVP:
 
 The MVP will be considered successful if users can:
 
-- Create an account
+- Create an account and complete onboarding
 - Join a conference
 - Discover compatible attendees
 - Build professional connections
-- Form or join a crew
+- Form or join a crew and chat with it
+- Message a connection directly
 - Schedule a meetup before or during the conference
 
 ---
@@ -322,6 +354,7 @@ The MVP will be considered successful if users can:
 | AI-generated code quality | Human review and testing |
 | Timeline delays | Re-prioritize backlog |
 | Limited user feedback | Continue product discovery during development |
+| Local build outpacing the GitHub repository | Push completed work before it accumulates further |
 
 ---
 
@@ -364,7 +397,7 @@ Each sprint concludes with the following reflection.
 
 - Scrum will be used throughout development.
 - Sprint 0 establishes the engineering foundation.
-- Messaging is excluded from the MVP.
+- Messaging, originally planned as excluded, shipped in Sprint 5 once Crews and Connections needed a way to act on live requests.
 - Every sprint must produce a working increment.
 - AI accelerates development but does not replace engineering judgment.
 
@@ -376,3 +409,4 @@ Each sprint concludes with the following reflection.
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial sprint plan |
 | 2.0 | July 2026 | Tsadia Mabel | Refined after backlog and architecture planning |
+| 2.1 | September 2026 | Tsadia Mabel | Expanded from five to six sprints to match what was actually built; renamed and reordered sprints around Onboarding, Crew Management, and Messaging; corrected Recommendations from rule-based to embedding-based; moved Direct Messaging out of Deferred Features; flagged Upload Profile Photo and itemized match reasoning as not completed; noted the GitHub merge gap in Definition of Done |
