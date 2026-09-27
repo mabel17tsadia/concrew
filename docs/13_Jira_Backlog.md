@@ -5,7 +5,7 @@
 > **Supporting Roles:** Business Analyst, Software Engineer, QA Engineer  
 > **SDLC Phase:** Planning  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -51,22 +51,24 @@ Epic
 
 ---
 
-# Epic 1 — Authentication & Profiles
+# Epic 1 — Authentication, Onboarding & Profiles
 
 ## Goal
 
-Allow users to securely register, authenticate, and create professional profiles.
+Allow users to securely register, authenticate, complete onboarding, and create professional profiles.
 
 ### Stories
 
 - Register Account
-- Log In
+- Log In (with onboarding redirect if incomplete)
 - Log Out
 - Reset Password
+- Complete Onboarding (Conference Goals, Interests, Networking Preferences)
+- Skip Onboarding
 - Create Profile
 - Edit Profile
-- Upload Profile Photo
-- Configure Conference Preferences
+
+`Upload Profile Photo` remains in the backlog, not yet implemented.
 
 ---
 
@@ -78,12 +80,13 @@ Allow attendees to discover and join conferences.
 
 ### Stories
 
-- Browse Conferences
+- Browse Conferences (Upcoming / Past tabs)
 - Search Conferences
 - View Conference Details
 - Join Conference
 - Leave Conference
 - View Joined Conferences
+- View Match-Based Recommendation Note on a Conference Card
 
 ---
 
@@ -97,11 +100,11 @@ Help users discover compatible attendees.
 
 - Browse People
 - Search Attendees
-- Filter Attendees
+- Filter Attendees (Company, School, City, Job Title, Interests, Networking Preferences)
 - View Attendee Profile
-- View Recommendations
-- View Match Reasons
-- Save Attendees
+- View Recommendations (match percentage)
+
+`View Match Reasons` (itemized reasoning) and `Save Attendees` remain in the backlog, not yet implemented.
 
 ---
 
@@ -114,8 +117,8 @@ Allow attendees to establish professional connections.
 ### Stories
 
 - Send Connection Request
-- Accept Connection
-- Decline Connection
+- Accept Connection (from the request or a live notification)
+- Decline Connection (from the request or a live notification)
 - View Connections
 - Remove Connection
 
@@ -129,12 +132,19 @@ Allow attendees to organize into small groups.
 
 ### Stories
 
-- Create Crew
-- Join Crew
-- Leave Crew
-- Invite Members
-- Remove Members
+- Create Crew (public or private)
+- Request to Join Crew (public)
+- Invite to Crew (private)
+- Approve or Decline Join Request
+- Revoke Invitation
+- Promote / Demote Admin
+- Remove Member
+- Transfer Ownership
+- Change Crew Visibility
+- Leave Crew (with confirmation)
+- Delete Crew (owner only, with confirmation)
 - View Crew Details
+- Crew Chat
 
 ---
 
@@ -147,27 +157,42 @@ Coordinate in-person gatherings during conferences.
 ### Stories
 
 - Create Meetup
-- Edit Meetup
-- Cancel Meetup
 - View Meetups
+
+`Edit Meetup` and `Cancel Meetup` remain in the backlog, not yet implemented.
 
 ---
 
-# Epic 7 — Notifications
+# Epic 7 — Messaging
 
 ## Goal
 
-Keep users informed of important activity.
+Let users continue conversations one-to-one, in real time.
+
+### Stories
+
+- View Conversations
+- Send and Receive Direct Messages
+
+---
+
+# Epic 8 — Notifications
+
+## Goal
+
+Keep users informed of important activity, live.
 
 ### Stories
 
 - View Notifications
-- Mark Notification Read
-- Mark All Read
+- Live Delivery of Connection Requests, Connection Acceptances, Crew Join Requests, and Crew Invitations
+- Accept or Decline a Request Directly from a Notification
+
+`Mark Notification Read` and `Mark All Read` as dedicated actions remain in the backlog; a notification currently clears when the underlying request is resolved.
 
 ---
 
-# Epic 8 — Testing & QA
+# Epic 9 — Testing & QA
 
 ## Goal
 
@@ -179,6 +204,8 @@ Ensure product quality before release.
 - Regression Testing
 - Bug Fixes
 - Release Validation
+
+Automated testing (unit and end-to-end) is not yet in place; testing has been manual so far.
 
 ---
 
@@ -193,35 +220,37 @@ Ensure product quality before release.
 
 ---
 
-## P0 – MVP
+## P0 – MVP (Shipped)
 
 - Authentication
+- Onboarding
 - User Profiles
-- Conference Preferences
 - Browse Conferences
 - Join Conferences
 - Browse Attendees
 - Recommendations
 - Connections
-- Crews
+- Crews (including Crew Chat)
 - Meetups
-- Notifications
+- Direct Messaging
+- Live Notifications
 
 ---
 
 ## P1 – Post-MVP
 
+- Push the local build to GitHub so the repository matches the running app
+- Small server-side API layer for upcoming AI features
 - Saved Attendees
-- Advanced Filters
-- Crew Invitations
-- Organizer Controls
+- Skills and Years of Experience as filters
+- Automated testing
 
 ---
 
 ## P2 – Future Enhancements
 
+- Itemized "why you matched" recommendation reasoning
 - Session-Based Discovery
-- AI Recommendations
 - Calendar Integration
 - Conference Maps
 
@@ -295,10 +324,12 @@ A story is complete when:
 
 - Code is implemented.
 - Acceptance criteria are satisfied.
-- Unit testing passes.
+- Unit testing passes, where automated tests exist (currently limited; see Epic 9).
 - QA verification is complete.
 - Documentation is updated.
 - The feature is merged into the main branch.
+
+> Several completed stories in this backlog exist locally but have not yet gone through the last step (merged into the main branch on GitHub). See the README's Known Gaps.
 
 ---
 
@@ -319,6 +350,7 @@ A story is complete when:
 - Stories represent user-facing functionality.
 - Development tasks and QA work are tracked as sub-tasks.
 - Sprint planning is documented separately.
+- Messaging and Notifications, originally scoped as later epics, were pulled into the MVP once crew and connection flows needed a way to act on live requests.
 
 ---
 
@@ -328,3 +360,4 @@ A story is complete when:
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial backlog structure |
 | 2.0 | July 2026 | Tsadia Mabel | Simplified to align with Jira Software Scrum workflow |
+| 2.1 | September 2026 | Tsadia Mabel | Added Onboarding stories to Epic 1; expanded Epic 5 with the real crew-management, invitation, and chat stories; added a new Messaging epic; corrected Epic 3 and Epic 8 to flag itemized match reasoning, Save Attendees, and per-notification read actions as not yet implemented; moved Messaging and Notifications from Post-MVP to P0 Shipped; flagged that automated testing has not started and that some shipped stories have not yet been merged to GitHub |
