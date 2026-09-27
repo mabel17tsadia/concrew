@@ -4,7 +4,7 @@
 > **Role:** Product Manager / UX Designer  
 > **SDLC Phase:** Product Discovery & UX Design  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -127,11 +127,9 @@ Instead of arriving alone, users begin building relationships before the confere
 ## User Actions
 
 - Creates ConCrew account
+- Completes the Onboarding wizard, selecting Conference Goals, Interests, and Networking Preferences
 - Builds professional profile
-- Completes conference preferences
 - Joins conference
-- Selects interests
-- Defines networking preferences
 
 ---
 
@@ -174,12 +172,11 @@ Several Days Before the Conference
 
 ## User Actions
 
-- Views recommendations
+- Views recommendations, shown as a match percentage
 - Explores attendee profiles
-- Reviews compatibility explanations
 - Sends connection requests
-- Joins conversations
-- Forms a crew
+- Gets a live notification when a request is accepted
+- Forms or joins a crew
 
 ---
 
@@ -220,7 +217,7 @@ Conference Days
 - Attends presentations together
 - Eats lunch together
 - Visits exhibitors
-- Continues technical discussions
+- Continues discussions in real time through Crew Chat or a direct message
 - Introduces one another to new people
 
 ---
@@ -266,11 +263,11 @@ After the Conference
 
 ## User Actions
 
-- Exchange LinkedIn profiles
-- Continue conversations
-- Share notes
-- Recommend future conferences
-- Join additional ConCrew communities
+- Continues one-on-one conversations through Direct Messages
+- Exchanges LinkedIn profiles
+- Shares notes
+- Recommends future conferences
+- Joins additional ConCrew communities
 
 ---
 
@@ -346,3 +343,4 @@ The user journey is considered successful when:
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial journey map |
 | 2.0 | July 2026 | Tsadia Mabel | Updated to reflect refined product vision and UX journey |
+| 2.1 | September 2026 | Tsadia Mabel | Removed the reference to itemized "compatibility explanations," which is not yet built (recommendations show a match percentage only); named the actual Onboarding wizard and match-percentage display in Stage 2 and 3; noted Crew Chat and Direct Messages as the real mechanism for continuing conversations in Stage 4 and 5 |
