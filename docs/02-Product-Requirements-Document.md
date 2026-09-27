@@ -4,7 +4,7 @@
 > **Role:** Product Manager  
 > **SDLC Phase:** Product Discovery & Planning  
 > **Status:** Draft  
-> **Version:** MVP v1.0
+> **Version:** MVP v1.1
 
 ---
 
@@ -142,7 +142,7 @@ Startup Founder
 Users should be able to:
 
 - Create an account.
-- Complete their compatibility profile.
+- Complete their compatibility profile (Conference Goals, Interests, Networking Preferences).
 - Join a conference.
 - Receive attendee recommendations.
 - Browse attendee profiles.
@@ -156,6 +156,7 @@ Users should be able to:
 Users should be able to:
 
 - Meet their crew.
+- Message their crew and individual connections directly.
 - Attend sessions together.
 - Continue discussions after presentations.
 - Coordinate coffee, lunch, or networking meetups.
@@ -185,6 +186,19 @@ The platform shall allow users to:
 
 ---
 
+## Onboarding
+
+Immediately after registration, users shall be able to:
+
+- Select one or more Conference Goals
+- Select one or more Interests
+- Select one or more Networking Preferences
+- Skip onboarding and complete it later from their profile
+
+This step is shown once per account; existing users are not required to complete it retroactively.
+
+---
+
 ## User Profiles
 
 Users shall be able to:
@@ -206,10 +220,11 @@ Users shall be able to:
 
 Users shall be able to:
 
-- Browse conferences
+- Browse conferences, split into Upcoming and Past
 - View conference information
 - Join conferences
 - Leave conferences
+- See how many people they'd likely match with are attending a given conference
 
 ---
 
@@ -219,10 +234,9 @@ Users shall be able to:
 
 - Browse attendees
 - Search attendees
-- Filter attendees
+- Filter attendees (by school, city, company, job title, interests, and networking preferences)
 - View attendee profiles
-- View compatibility explanations
-- Receive personalized recommendations
+- Receive personalized recommendations, ranked by profile-similarity matching
 
 ---
 
@@ -234,6 +248,7 @@ Users shall be able to:
 - Accept requests
 - Decline requests
 - View connections
+- Receive a notification when a request is sent to them or accepted
 
 ---
 
@@ -242,9 +257,35 @@ Users shall be able to:
 Users shall be able to:
 
 - Create crews
-- Join crews
-- Leave crews
-- View crew members
+- Browse and request to join public crews
+- Be invited to private crews
+- Leave crews (with confirmation)
+- View crew members, including role (owner, admin, member)
+- Manage a crew: approve or decline join requests, invite people, change member roles, transfer ownership, change visibility
+- Delete a crew (owner only, with confirmation)
+- Chat with crew members in a dedicated, real-time crew chat
+- Schedule and view crew meetups
+
+---
+
+## Messaging
+
+Users shall be able to:
+
+- See a list of their active conversations
+- Send and receive direct messages in real time
+- Send and receive crew messages in real time, scoped to crew members only
+
+---
+
+## Notifications
+
+Users shall be able to:
+
+- See a live count of unread notifications
+- Receive a notification for: a connection request, a connection acceptance, a crew join request, a crew invitation
+- Accept or decline a request directly from the notification
+- Have notifications update live, without needing to refresh the page
 
 ---
 
@@ -258,6 +299,7 @@ The platform should:
 - Provide secure authentication.
 - Scale across multiple conferences.
 - Remain highly available during conference periods.
+- Reflect changes to shared data (membership, requests, notifications) live, without requiring a manual refresh.
 
 ---
 
@@ -266,15 +308,17 @@ The platform should:
 ## Included
 
 - Authentication
+- Onboarding (Compatibility Profile)
 - User Profiles
-- Compatibility Onboarding
-- Conference Browsing
+- Conference Browsing (Upcoming / Past)
 - Conference Membership
 - Browse People
-- Recommendations
+- Recommendations (profile-similarity based)
 - Search & Filters
 - Connection Requests
-- Conference Crews
+- Conference Crews (including chat and meetups)
+- Direct Messaging
+- Live Notifications
 
 ---
 
@@ -282,14 +326,12 @@ The platform should:
 
 The following features are intentionally postponed:
 
-- Direct Messaging
-- AI Matching
 - Ticket Purchasing
 - Hotel Booking
 - Video Calls
 - Job Boards
 - Payment Processing
-- Conference Management
+- Conference Management (conferences are currently added by an administrator, not created by users)
 
 ---
 
@@ -334,6 +376,7 @@ The MVP will be considered successful if users can successfully discover and int
 - Users browse recommendations
 - Users send connection requests
 - Users create crews
+- Users send messages
 
 ---
 
@@ -355,7 +398,6 @@ The following questions remain under investigation.
 - What factors create the best attendee recommendations?
 - What is the ideal crew size?
 - Should users belong to multiple crews?
-- When should messaging be introduced?
 - How much profile information should be public?
 - Should profiles require LinkedIn verification?
 
@@ -365,9 +407,7 @@ The following questions remain under investigation.
 
 Potential future releases may include:
 
-- AI-powered recommendations
-- Direct messaging
-- Group chat
+- Further matching refinements, combining stated interests with bio-embedding similarity
 - Session planning
 - Calendar integration
 - QR networking
@@ -395,3 +435,4 @@ Once this hypothesis has been validated, additional networking and collaboration
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial Product Requirements Document |
 | 2.0 | July 2026 | Tsadia Mabel | Refined after product discovery and MVP prioritization |
+| 3.0 | September 2026 | Tsadia Mabel | Moved Direct Messaging, Crew Chat, and Live Notifications from Excluded/Future into MVP Scope now that they are built; added Onboarding, Messaging, and Notifications requirement sections; removed the resolved "when should messaging be introduced" open question |
