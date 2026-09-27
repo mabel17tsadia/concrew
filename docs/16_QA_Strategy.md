@@ -5,7 +5,7 @@
 > **Supporting Roles:** Software Engineer, Product Manager  
 > **SDLC Phase:** Testing  
 > **Status:** Approved  
-> **Version:** MVP v2.0
+> **Version:** MVP v2.1
 
 ---
 
@@ -16,6 +16,8 @@ This document defines the Quality Assurance (QA) strategy for the ConCrew MVP.
 The objective is to ensure that every feature satisfies its functional requirements, business rules, usability expectations, and quality standards before release.
 
 Quality is treated as a continuous activity integrated throughout the Software Development Life Cycle (SDLC), rather than a phase performed only at the end of development.
+
+> **Note on this revision:** the testing levels and roles below describe the intended strategy. As of this revision, testing has actually been manual and functional, done by the same person across every role described here; automated unit, integration, and end-to-end testing have not yet been implemented. See DOC-017 Test Cases for what has actually been exercised.
 
 ---
 
@@ -56,79 +58,65 @@ Testing reflects realistic user behavior rather than ideal scenarios.
 
 ## Automate Repetitive Testing
 
-Automated tests reduce manual effort and improve consistency.
+Automated tests would reduce manual effort and improve consistency once introduced; none exist yet.
 
 ---
 
 ## Track Every Defect
 
-Every confirmed defect is documented, prioritized, and resolved through Jira.
+Every confirmed defect is documented and resolved. A dedicated Jira defect workflow is planned; today, defects have been tracked directly against the story or through direct testing feedback (see DOC-017 Test Cases).
 
 ---
 
 # Testing Strategy
 
-Testing is performed at multiple levels.
+Testing is intended at multiple levels, though only some are in practice today.
 
-| Testing Level | Purpose |
-|---------------|---------|
-| Unit Testing | Verify individual functions and components |
-| Integration Testing | Verify interactions between application components |
-| End-to-End Testing | Validate complete user journeys |
-| Manual Testing | Evaluate usability and user experience |
-| Regression Testing | Ensure existing functionality remains stable |
-| Acceptance Testing | Verify stories satisfy business requirements |
-| Smoke Testing | Verify application readiness before deployment |
+| Testing Level | Purpose | Status |
+|---------------|---------|--------|
+| Unit Testing | Verify individual functions and components | Not yet implemented |
+| Integration Testing | Verify interactions between application components | Not yet implemented |
+| End-to-End Testing | Validate complete user journeys | Not yet implemented |
+| Manual Testing | Evaluate usability and user experience | In practice |
+| Regression Testing | Ensure existing functionality remains stable | Manual, in practice |
+| Acceptance Testing | Verify stories satisfy business requirements | Manual, in practice |
+| Smoke Testing | Verify application readiness before deployment | Manual, in practice |
 
-               ```Software Development
+```text
+Software Development
+        │
+        ▼
+Manual Verification (Developer)
+        │
+        ▼
+Functional Testing (QA role)
+        │
+        ▼
+Acceptance Testing (Product Owner role)
+        │
+        ▼
+Regression Testing (QA role)
+        │
+        ▼
+Smoke Testing
+        │
+        ▼
+Production Release
+```
 
-                       │
-                       ▼
-
-              Unit Testing (Developer)
-
-                       │
-                       ▼
-
-          Integration Testing (Developer)
-
-                       │
-                       ▼
-
-           Functional Testing (QA Engineer)
-
-                       │
-                       ▼
-
-           Acceptance Testing (Product Owner)
-
-                       │
-                       ▼
-
-             Regression Testing (QA)
-
-                       │
-                       ▼
-
-                Smoke Testing
-
-                       │
-                       ▼
-
-                Production Release
-                ```
 ---
 
 # Testing Responsibilities
+
+On a solo project, one person performs all of the following roles.
 
 ## Software Engineer
 
 Responsible for:
 
-- Unit testing
-- Local verification
+- Manual local verification
 - Fixing identified defects
-- Supporting integration testing
+- Supporting integration testing (once automated tests exist)
 
 ---
 
@@ -161,15 +149,16 @@ Every implemented feature is validated against the Functional Requirements Speci
 Core MVP features include:
 
 - Authentication
+- Onboarding
 - User Profiles
-- Conference Preferences
-- Conference Discovery
-- Attendee Discovery
-- Recommendations
+- Conference Discovery (Upcoming / Past)
+- Attendee Discovery, Search & Filters
+- Recommendations (profile-similarity match percentage)
 - Connections
-- Crews
+- Conference Crews, including Crew Management and Crew Chat
 - Meetups
-- Notifications
+- Direct Messaging
+- Live Notifications
 
 ---
 
@@ -195,6 +184,16 @@ Verify:
 - Authorization
 - Session handling
 - Input validation
+
+---
+
+## Realtime Behavior
+
+Verify:
+
+- Crew membership and join-request updates appear live, without a refresh
+- Notifications and messages arrive live
+- The relevant tables remain enabled in the `supabase_realtime` publication
 
 ---
 
@@ -231,7 +230,7 @@ Verify functionality across:
 
 # Defect Management
 
-Every confirmed defect is tracked within Jira.
+Every confirmed defect is tracked.
 
 ## Severity Levels
 
@@ -265,6 +264,7 @@ The MVP is ready for release when:
 - Smoke testing passes.
 - Critical end-to-end user journeys succeed.
 - Documentation is complete.
+- The local build has been pushed to GitHub, so the deployed and documented product match.
 - Product Owner approves the release.
 
 ---
@@ -319,9 +319,11 @@ AI tools may assist with:
 
 - Test case generation
 - Edge case discovery
-- Automated test creation
-- Playwright test generation
+- Automated test creation (planned, not yet built)
+- Playwright test generation (planned, not yet built)
 - Failure analysis
+
+AI has already been used during this project to diagnose real defects, for example tracing the crew-realtime and notification-bell bugs back to tables missing from the `supabase_realtime` publication.
 
 Engineering and QA remain responsible for:
 
@@ -339,7 +341,7 @@ The following metrics are monitored throughout development.
 | Metric | Purpose |
 |---------|---------|
 | Story Acceptance Rate | Measures successful feature delivery |
-| Test Pass Rate | Measures testing success |
+| Test Pass Rate | Measures testing success (currently based on manual testing) |
 | Bugs Found per Sprint | Measures product quality |
 | Bugs Resolved per Sprint | Measures defect resolution |
 | Regression Failures | Measures system stability |
@@ -361,9 +363,9 @@ The following metrics are monitored throughout development.
 
 - Quality is everyone's responsibility.
 - Testing is integrated into every sprint.
-- Automated testing is used where practical.
-- Every defect is tracked in Jira.
-- AI supports—but does not replace—QA judgment.
+- Automated testing is the target, not yet the practice; testing so far has been manual and functional.
+- Defects are tracked against their story until a dedicated defect workflow is introduced.
+- AI supports, but does not replace, QA judgment, and has already helped diagnose real production-style defects during development.
 
 ---
 
@@ -373,3 +375,4 @@ The following metrics are monitored throughout development.
 |----------|------|--------|---------|
 | 1.0 | July 2026 | Tsadia Mabel | Initial QA strategy |
 | 2.0 | July 2026 | Tsadia Mabel | Refined to align with sprint-based delivery and engineering workflow |
+| 2.1 | September 2026 | Tsadia Mabel | Marked which testing levels are actually in practice versus still planned; corrected the Core MVP Features list to include Onboarding, Crew Management, Crew Chat, and Messaging; added a Realtime Behavior non-functional testing section; added the GitHub push to Release Readiness Criteria; reversed the "automated testing is used" decision to reflect current manual-only testing |
